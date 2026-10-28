@@ -28,7 +28,7 @@ PrivacyGuard currently scans only source snippets pasted into the browser. The s
 
 - React + TypeScript + Vite
 - Local, heuristic PrivacyGuard scanner
-- Vitest unit tests for scanner rules
+- SHA-256 fingerprints for normalized local campaign draft rules\n- Validated treasury reconciliation helpers\n- Vitest unit tests for scanner, campaign fingerprints, and treasury math
 - GitHub Actions test and production-build checks
 
 ## Run locally
@@ -51,16 +51,16 @@ npm run build
 
 ## Zcash integration
 
-The integration is intentionally not faked. Read the [Zcash integration path](docs/zcash-integration.md) for the official tooling references, phased approach, security boundaries, and acceptance criteria for a real testnet integration.
+The integration is intentionally not faked. Read the [Zcash integration path](docs/zcash-integration.md) for the official tooling references, phased approach, security boundaries, and acceptance criteria for a real testnet integration. Campaign drafts can now produce a local SHA-256 fingerprint of normalized rules. This detects changes to the rule text, but it is not on-chain, signed, timestamped, or proof of funds. The treasury helper validates amounts and reconciles user-entered ledger records only.
 
 ## Roadmap
 
 - [x] Establish product scope and privacy-first principles
 - [x] Build responsive prototype for the three modules
-- [x] Add initial heuristic privacy scanner and unit tests
+- [x] Add initial heuristic privacy scanner and unit tests\n- [x] Add deterministic local campaign-rule fingerprints\n- [x] Add validated treasury reconciliation helpers and tests
 - [x] Document a phased Zcash integration path
 - [ ] Add tests for campaign rule commitments and treasury calculations
-- [ ] Verify a viable testnet endpoint and wallet integration strategy
+- [ ] Persist/sign campaign rule commitments in a trusted, independently verifiable way\n- [ ] Verify a viable testnet endpoint and wallet integration strategy
 - [ ] Integrate real chain data with explicit live/stale/demo states
 - [ ] Security review before handling real funds
 
