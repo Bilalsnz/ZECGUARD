@@ -1,5 +1,7 @@
 # ZECGUARD — Competition Submission Kit
 
+**Time-sensitive:** the official ZECATHON page lists submissions due **October 28, 2026 at 23:59 UTC**. The portal requires sign-in to view the exact track rules and submit. Confirm the current countdown and all required fields in the official portal before finalizing.
+
 ## One-line pitch
 
 ZECGUARD is a privacy-operations workspace for Zcash builders that combines attributed network privacy metrics, tamper-evident local fundraising rules, treasury reconciliation, and a browser-local privacy-pattern scanner.
@@ -76,4 +78,6 @@ ZECGUARD is a mobile-friendly operational workspace with four connected capabili
 - [ ] Confirm the submission is saved before the published deadline.
 - [ ] Keep a copy of the final text and submitted links.
 
+Project repository: https://github.com/Bilalsnz/ZECGUARD  
+Configured demo URL: https://zecguard.vercel.app  
 Official event information and submission portal: https://thezecathon.com/
