@@ -1,12 +1,38 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { scanPrivacySnippet } from "./lib/scanner";
 import { summarizeLedger } from "./lib/treasury";
 import { commitCampaignRules } from "./lib/campaignIntegrity";
+import { readLocalState, writeLocalState } from "./lib/storage";
 
 type Module = "Overview" | "PrivateRaise" | "Treasury" | "PrivacyGuard";
 type Finding = { id: number; title: string; detail: string; severity: "High" | "Medium" | "Low"; status: "Open" | "Reviewed"; remediation?: string; ruleId?: string };
 type Campaign = { name: string; category: string; target: number; raised: number; days: number; status: string; fingerprint?: string };
 type Entry = { id: number; label: string; type: "Inflow" | "Outflow"; amount: number; date: string; note: string };
+
+function isCampaignList(value: unknown): value is Campaign[] {
+  return Array.isArray(value) && value.every((item) => item !== null && typeof item === "object" &&
+    typeof item.name === "string" && typeof item.category === "string" &&
+    typeof item.target === "number" && Number.isFinite(item.target) &&
+    typeof item.raised === "number" && Number.isFinite(item.raised) &&
+    typeof item.days === "number" && Number.isFinite(item.days) && typeof item.status === "string" &&
+    (item.fingerprint === undefined || typeof item.fingerprint === "string"));
+}
+function isEntryList(value: unknown): value is Entry[] {
+  return Array.isArray(value) && value.every((item) => item !== null && typeof item === "object" &&
+    typeof item.id === "number" && typeof item.label === "string" &&
+    (item.type === "Inflow" || item.type === "Outflow") &&
+    typeof item.amount === "number" && Number.isFinite(item.amount) &&
+    typeof item.date === "string" && typeof item.note === "string");
+}
+function isFindingList(value: unknown): value is Finding[] {
+  return Array.isArray(value) && value.every((item) => item !== null && typeof item === "object" &&
+    typeof item.id === "number" && typeof item.title === "string" && typeof item.detail === "string" &&
+    (item.severity === "High" || item.severity === "Medium" || item.severity === "Low") &&
+    (item.status === "Open" || item.status === "Reviewed") &&
+    (item.remediation === undefined || typeof item.remediation === "string") &&
+    (item.ruleId === undefined || typeof item.ruleId === "string"));
+}
+
 
 const initialCampaigns: Campaign[] = [
   { name: "Shielded community grants", category: "Public goods", target: 50, raised: 34.6, days: 8, status: "Funding" },
@@ -44,9 +70,9 @@ function Icon({ name }: { name: string }) {
 
 export default function App() {
   const [active, setActive] = useState<Module>("Overview");
-  const [campaigns, setCampaigns] = useState(initialCampaigns);
-  const [entries, setEntries] = useState(initialEntries);
-  const [findings, setFindings] = useState(initialFindings);
+  const [campaigns, setCampaigns] = useState<Campaign[]>(() => readLocalState("zecguard.campaigns.v1", initialCampaigns, isCampaignList));
+  const [entries, setEntries] = useState<Entry[]>(() => readLocalState("zecguard.ledger.v1", initialEntries, isEntryList));
+  const [findings, setFindings] = useState<Finding[]>(() => readLocalState("zecguard.findings.v1", initialFindings, isFindingList));
   const [campaignModal, setCampaignModal] = useState(false);
   const [entryModal, setEntryModal] = useState(false);
   const [campaignName, setCampaignName] = useState("");
@@ -58,6 +84,11 @@ export default function App() {
   const [entryType, setEntryType] = useState<"Inflow" | "Outflow">("Inflow");
   const [scanDone, setScanDone] = useState(false);
   const [toast, setToast] = useState("");
+
+  useEffect(() => { writeLocalState("zecguard.campaigns.v1", campaigns); }, [campaigns]);
+  useEffect(() => { writeLocalState("zecguard.ledger.v1", entries); }, [entries]);
+  useEffect(() => { writeLocalState("zecguard.findings.v1", findings); }, [findings]);
+
 
   const totalRaised = campaigns.reduce((sum, item) => sum + item.raised, 0);
   const ledgerSummary = summarizeLedger(entries);
