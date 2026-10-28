@@ -71,3 +71,24 @@
 /* Compact workspace backup action */
 .export-button{padding:7px 9px;font-size:9px;white-space:nowrap}
 @media(max-width:760px){.export-button{padding:6px 7px;font-size:8px}}
+
+
+/* Read-only network status states */
+.network-status-panel{margin:0 0 24px;overflow:hidden}
+.network-status-panel .panel-header{align-items:center}
+.network-state{display:inline-flex;align-items:center;gap:7px;border:1px solid #3a414d;border-radius:5px;padding:6px 8px;font:9px 'DM Mono',monospace;letter-spacing:.07em}
+.network-state>span{width:6px;height:6px;border-radius:50%;background:#7f8999}
+.network-state.live{color:#9fe5b3;border-color:#31523d;background:#17251c}
+.network-state.live>span{background:#8be0a2}
+.network-state.stale{color:#e8c17c;border-color:#51432b;background:#292219}
+.network-state.stale>span{background:#e8c17c}
+.network-state.unavailable{color:#aab2c0}
+.network-status-body{padding:17px 20px 20px;display:grid;grid-template-columns:minmax(150px,1fr) 2fr;gap:12px 24px;align-items:start}
+.network-status-main{display:flex;flex-direction:column;gap:5px}
+.network-status-main strong{font:600 25px 'Space Grotesk',sans-serif;letter-spacing:-.04em}
+.network-status-main span,.network-status-body>p{font-size:10px;color:#929bad;line-height:1.6;margin:0}
+.network-status-meta{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:9px;color:#788395}
+.network-status-body>.button{justify-self:start}
+.network-config-note{grid-column:1/-1!important;font-size:9px!important;color:#788395!important;overflow-wrap:anywhere}
+.network-config-note code{color:#c1b6ff}
+@media(max-width:760px){.network-status-body{grid-template-columns:1fr;gap:10px;padding:14px}.network-status-main strong{font-size:22px}.network-config-note{grid-column:auto!important}}
