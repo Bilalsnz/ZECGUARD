@@ -3,7 +3,7 @@ import { scanPrivacySnippet } from "./lib/scanner";
 import { summarizeLedger } from "./lib/treasury";
 import { commitCampaignRules } from "./lib/campaignIntegrity";
 import { readLocalState, writeLocalState } from "./lib/storage";
-import { fetchNetworkStatus, type NetworkStatus } from "./lib/networkStatus";
+import { fetchZcashSnapshot, type ZcashSnapshot } from "./lib/zcashSnapshot";
 
 type Module = "Overview" | "PrivateRaise" | "Treasury" | "PrivacyGuard";
 type Finding = { id: number; title: string; detail: string; severity: "High" | "Medium" | "Low"; status: "Open" | "Reviewed"; remediation?: string; ruleId?: string };
@@ -238,42 +238,50 @@ export default function App() {
 
 
 function NetworkStatusPanel() {
-  const endpoint = (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env?.VITE_ZECGUARD_STATUS_URL;
-  const [status, setStatus] = useState<NetworkStatus>(() => ({
+  const [snapshot, setSnapshot] = useState<ZcashSnapshot>(() => ({
     state: "UNAVAILABLE",
     checkedAt: new Date().toISOString(),
-    message: "Status has not been checked yet.",
+    warnings: [],
+    message: "Loading public Zcash network metrics…",
   }));
   const [checking, setChecking] = useState(false);
 
   async function refresh() {
     setChecking(true);
-    const next = await fetchNetworkStatus(endpoint);
-    setStatus(next);
+    const next = await fetchZcashSnapshot();
+    setSnapshot(next);
     setChecking(false);
   }
 
-  useEffect(() => { void refresh(); }, [endpoint]);
+  useEffect(() => { void refresh(); }, []);
 
-  const stateClass = status.state.toLowerCase();
+  const stateClass = snapshot.state.toLowerCase();
+  const number = (value: number | undefined, digits = 0) => value === undefined
+    ? "—"
+    : value.toLocaleString("en-US", { maximumFractionDigits: digits, minimumFractionDigits: digits });
   return <section className="panel network-status-panel" aria-live="polite">
     <div className="panel-header">
-      <div><div className="section-kicker">ZCASH CONNECTIVITY</div><h3>Read-only network status</h3></div>
-      <span className={`network-state ${stateClass}`}><span />{status.state}</span>
+      <div><div className="section-kicker">ZCASH NETWORK INTELLIGENCE</div><h3>Network & shielded pool</h3></div>
+      <span className={`network-state ${stateClass}`}><span />{snapshot.state}</span>
     </div>
     <div className="network-status-body">
-      <div className="network-status-main">
-        <strong>{status.blockHeight !== undefined ? status.blockHeight.toLocaleString("en-US") : "No block height"}</strong>
-        <span>{status.chainName === "main" ? "Zcash mainnet" : status.chainName === "test" ? "Zcash testnet" : "Chain not confirmed"}</span>
+      <div className="network-metric-grid">
+        <div className="network-metric"><span>Reported block height</span><strong>{number(snapshot.blockHeight)}</strong><small>Public network data</small></div>
+        <div className="network-metric"><span>Shielded pool total</span><strong>{snapshot.shieldedTotalZec === undefined ? "—" : number(snapshot.shieldedTotalZec / 1_000_000, 2) + "M"}</strong><small>ZEC, aggregate only</small></div>
+        <div className="network-metric"><span>Supply shielded</span><strong>{snapshot.shieldedPercent === undefined ? "—" : number(snapshot.shieldedPercent, 1) + "%"}</strong><small>Pool share, not user balance</small></div>
+        <div className="network-metric"><span>ZEC reference price</span><strong>{snapshot.priceUsd === undefined ? "—" : "$" + number(snapshot.priceUsd, 2)}</strong><small>Context only, not financial advice</small></div>
       </div>
-      <p>{status.message}</p>
+      <p className="network-status-message">{snapshot.message}</p>
       <div className="network-status-meta">
-        <span>Checked {new Date(status.checkedAt).toLocaleTimeString()}</span>
-        {status.observedAt && <span>Endpoint observed {new Date(status.observedAt).toLocaleTimeString()}</span>}
+        <span>Checked {new Date(snapshot.checkedAt).toLocaleTimeString()}</span>
+        {snapshot.generatedAt && <span>Snapshot {new Date(snapshot.generatedAt).toLocaleString()}</span>}
       </div>
-      <button className="button secondary" onClick={() => void refresh()} disabled={checking}>{checking ? "Checking…" : "Refresh status"} <Icon name="activity" /></button>
-      {!endpoint && <p className="network-config-note">To enable this adapter, configure <code>VITE_ZECGUARD_STATUS_URL</code> with an HTTPS JSON status-proxy endpoint. No endpoint is configured in this build.</p>}
-      <p className="network-config-note">Endpoint-reported height only. This does not verify consensus, wallet balances, shielded funds, or campaign payments.</p>
+      {snapshot.warnings.length > 0 && <div className="network-warning-list">{snapshot.warnings.map((warning, index) => <p key={index}><Icon name="activity" /> {warning}</p>)}</div>}
+      <div className="network-status-actions">
+        <button className="button secondary" onClick={() => void refresh()} disabled={checking}>{checking ? "Refreshing…" : "Refresh metrics"} <Icon name="activity" /></button>
+        <a className="network-source-link" href="https://zecstats.org/api" target="_blank" rel="noreferrer">Source & methodology ↗</a>
+      </div>
+      <p className="network-config-note">Source: ZecStats public API, CC BY 4.0. Metrics are third-party aggregate observations and may be stale. They do not prove wallet ownership, shielded balances, or campaign payments. No wallet secrets are requested or sent.</p>
     </div>
   </section>;
 }
