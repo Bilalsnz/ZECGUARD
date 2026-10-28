@@ -49,13 +49,18 @@ npm test
 npm run build
 ```
 
+## Zcash integration
+
+The integration is intentionally not faked. Read the [Zcash integration path](docs/zcash-integration.md) for the official tooling references, phased approach, security boundaries, and acceptance criteria for a real testnet integration.
+
 ## Roadmap
 
 - [x] Establish product scope and privacy-first principles
 - [x] Build responsive prototype for the three modules
 - [x] Add initial heuristic privacy scanner and unit tests
+- [x] Document a phased Zcash integration path
 - [ ] Add tests for campaign rule commitments and treasury calculations
-- [ ] Verify current Zcash testnet and wallet integration options
+- [ ] Verify a viable testnet endpoint and wallet integration strategy
 - [ ] Integrate real chain data with explicit live/stale/demo states
 - [ ] Security review before handling real funds
 
