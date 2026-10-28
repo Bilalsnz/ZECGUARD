@@ -1,6 +1,6 @@
 # ZECGUARD
 
-**Your funds. Your privacy. Your proof.**
+**Privacy operations for Zcash.**
 
 ZECGUARD is an open-source exploration of privacy-aware financial tooling for the Zcash ecosystem. It brings three related workflows together:
 
