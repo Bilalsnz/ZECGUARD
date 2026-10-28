@@ -41,6 +41,7 @@ ZECGUARD is a mobile-friendly operational workspace with four connected capabili
 - No wallet is connected.
 - No transaction is signed, broadcast, or verified by this prototype.
 - Aggregate pool statistics are not individual balances and cannot identify who owns shielded funds.
+- The browser contacts ZecStats for public metrics; that third party may observe ordinary connection metadata such as the visitor’s IP address. The request does not include wallet addresses or keys.
 - A local SHA-256 fingerprint is not a signature, timestamp, chain commitment, or proof of payment.
 - The snippet scanner is heuristic, not a formal audit or full repository scanner.
 - Browser local storage is not encrypted cloud storage.
