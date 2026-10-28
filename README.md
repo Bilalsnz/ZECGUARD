@@ -28,7 +28,9 @@ PrivacyGuard currently scans only source snippets pasted into the browser. The s
 
 - React + TypeScript + Vite
 - Local, heuristic PrivacyGuard scanner
-- SHA-256 fingerprints for normalized local campaign draft rules\n- Validated treasury reconciliation helpers\n- Vitest unit tests for scanner, campaign fingerprints, and treasury math
+- SHA-256 fingerprints for normalized local campaign draft rules
+- Validated treasury reconciliation helpers
+- Vitest unit tests for scanner, campaign fingerprints, and treasury math
 - GitHub Actions test and production-build checks
 
 ## Run locally
@@ -57,10 +59,13 @@ ZECGUARD reads public aggregate Zcash network metrics from the CORS-enabled [Zec
 
 - [x] Establish product scope and privacy-first principles
 - [x] Build responsive prototype for the three modules
-- [x] Add initial heuristic privacy scanner and unit tests\n- [x] Add deterministic local campaign-rule fingerprints\n- [x] Add validated treasury reconciliation helpers and tests
+- [x] Add initial heuristic privacy scanner and unit tests
+- [x] Add deterministic local campaign-rule fingerprints
+- [x] Add validated treasury reconciliation helpers and tests
 - [x] Document a phased Zcash integration path
 - [x] Add tests for campaign rule commitments and treasury calculations
-- [ ] Persist/sign campaign rule commitments in a trusted, independently verifiable way\n- [ ] Verify a viable testnet wallet integration strategy
+- [ ] Persist/sign campaign rule commitments in a trusted, independently verifiable way
+- [ ] Verify a viable testnet wallet integration strategy
 - [x] Integrate attributed public aggregate Zcash data with explicit live/stale/unavailable states
 - [ ] Security review before handling real funds
 
@@ -91,3 +96,10 @@ This repository is experimental software. It has not been audited. Never enter s
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+
+## Submission kit
+
+- [Competition submission kit](docs/submission-kit.md)
+- [90-second demo script](docs/demo-script.md)
+- [Zcash integration path and limitations](docs/zcash-integration.md)
