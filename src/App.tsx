@@ -155,7 +155,6 @@ export default function App() {
 }
 
 function Overview({ campaigns, entries, findings, balance, totalRaised, openFindings, setActive }: { campaigns: Campaign[]; entries: Entry[]; findings: Finding[]; balance: number; totalRaised: number; openFindings: number; setActive: (module: Module) => void }) {
-  const progress = campaigns.length ? Math.round(campaigns.reduce((sum, c) => sum + Math.min(c.raised / c.target, 1), 0) / campaigns.length * 100) : 0;
   return <>
     <div className="welcome-banner"><div className="banner-grid" /><div className="banner-content"><div className="banner-chip"><span /> YOUR PRIVACY WORKSPACE</div><h2>Private by default.<br /><em>Verifiable by design.</em></h2><p>Tools for fundraising, team finances, and safer Zcash applications, without pretending privacy is a checkbox.</p><button className="button banner-button" onClick={() => setActive("PrivacyGuard")}>Review privacy checks <Icon name="arrow" /></button></div><div className="banner-art" aria-hidden="true"><div className="orbit orbit-one" /><div className="orbit orbit-two" /><div className="core-shield"><Icon name="shield" /></div><div className="art-tag tag-a"><span className="mini-dot green" /> SHIELDED</div><div className="art-tag tag-b"><span className="mini-dot amber" /> VERIFY</div></div></div>
     <div className="section-row"><div><div className="section-kicker">WORKSPACE HEALTH</div><h2 className="section-title">Your overview</h2></div><span className="muted-inline">Illustrative local data <span className="status-dot amber" /></span></div>
