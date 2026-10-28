@@ -117,6 +117,27 @@ export default function App() {
     setToast(message);
     window.setTimeout(() => setToast(""), 3000);
   }
+  function exportWorkspace() {
+    const backup = {
+      schema: "zecguard.workspace-backup.v1",
+      exportedAt: new Date().toISOString(),
+      notice: "Local workspace backup only. Records are not chain-verified and this file may contain sensitive operational notes.",
+      campaigns,
+      ledgerEntries: entries,
+      privacyFindings: findings,
+    };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `zecguard-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    notify("Workspace backup exported. Keep the file somewhere private.");
+  }
+
   async function createCampaign(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const target = Number(campaignTarget);
@@ -189,7 +210,7 @@ export default function App() {
       <main className="main-area">
         <header className="topbar">
           <div className="breadcrumbs"><span>Workspace</span><span className="crumb-slash">/</span><strong>{active}</strong></div>
-          <div className="topbar-right"><span className="demo-pill"><span /> DEMO DATA</span><button className="avatar" aria-label="Local demo profile">B</button></div>
+          <div className="topbar-right"><button className="button secondary export-button" onClick={exportWorkspace}>Backup</button><span className="demo-pill"><span /> DEMO DATA</span><button className="avatar" aria-label="Local demo profile">B</button></div>
         </header>
 
         <section className="page-content">
