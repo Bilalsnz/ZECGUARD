@@ -66,7 +66,7 @@ The integration is intentionally not faked. Read the [Zcash integration path](do
 
 ## Local data behavior
 
-Campaign drafts, ledger entries, and finding review statuses are saved in the current browser using local storage. They are not synced to an account, encrypted by this application, backed up, or published to Zcash. Clearing browser site data can erase them. Treat the ledger as an operational note-taking aid, not an accounting source of truth. Seed phrases, private keys, and viewing keys must never be entered.
+Campaign drafts, ledger entries, and finding review statuses are saved in the current browser using local storage. They are not synced to an account, encrypted by this application, backed up, or published to Zcash. Clearing browser site data can erase them. Use the **Backup** button to download a JSON copy; that file may contain sensitive operational notes, so keep it private. Treat the ledger as an operational note-taking aid, not an accounting source of truth. Seed phrases, private keys, and viewing keys must never be entered.
 
 ## Security
 
