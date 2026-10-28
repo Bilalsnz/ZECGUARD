@@ -92,3 +92,20 @@
 .network-config-note{grid-column:1/-1!important;font-size:9px!important;color:#788395!important;overflow-wrap:anywhere}
 .network-config-note code{color:#c1b6ff}
 @media(max-width:760px){.network-status-body{grid-template-columns:1fr;gap:10px;padding:14px}.network-status-main strong{font-size:22px}.network-config-note{grid-column:auto!important}}
+
+
+/* Live aggregate Zcash metrics and source provenance */
+.network-status-body{display:flex;flex-direction:column;gap:14px;padding:18px 20px 20px}
+.network-metric-grid{width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.network-metric{min-width:0;padding:14px;border:1px solid #252b36;border-radius:8px;background:#10131a;display:flex;flex-direction:column;gap:8px}
+.network-metric>span{font-size:9px;color:#909aab;line-height:1.4}
+.network-metric strong{font:600 clamp(15px,2vw,23px) 'Space Grotesk',sans-serif;letter-spacing:-.04em;overflow-wrap:anywhere}
+.network-metric small{font-size:8px;color:#717d90;line-height:1.4}
+.network-status-message{font-size:10px;color:#aeb7c7;line-height:1.6;margin:0}
+.network-status-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.network-source-link{font-size:10px;color:#b6a8ff;text-decoration:none}
+.network-source-link:hover{text-decoration:underline}
+.network-warning-list{border-left:2px solid #d4a04e;padding-left:12px}
+.network-warning-list p{font-size:9px;color:#e5c28c;line-height:1.5;display:flex;gap:7px;margin:5px 0}
+.network-warning-list svg{width:12px;height:12px;flex:none}
+@media(max-width:760px){.network-status-body{padding:14px;gap:12px}.network-metric-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.network-metric{padding:11px}.network-metric strong{font-size:18px}.network-status-actions{gap:12px}}
