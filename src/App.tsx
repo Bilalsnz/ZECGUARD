@@ -3,6 +3,7 @@ import { scanPrivacySnippet } from "./lib/scanner";
 import { summarizeLedger } from "./lib/treasury";
 import { commitCampaignRules } from "./lib/campaignIntegrity";
 import { readLocalState, writeLocalState } from "./lib/storage";
+import { fetchNetworkStatus, type NetworkStatus } from "./lib/networkStatus";
 
 type Module = "Overview" | "PrivateRaise" | "Treasury" | "PrivacyGuard";
 type Finding = { id: number; title: string; detail: string; severity: "High" | "Medium" | "Low"; status: "Open" | "Reviewed"; remediation?: string; ruleId?: string };
@@ -235,9 +236,52 @@ export default function App() {
   );
 }
 
+
+function NetworkStatusPanel() {
+  const endpoint = (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env?.VITE_ZECGUARD_STATUS_URL;
+  const [status, setStatus] = useState<NetworkStatus>(() => ({
+    state: "UNAVAILABLE",
+    checkedAt: new Date().toISOString(),
+    message: "Status has not been checked yet.",
+  }));
+  const [checking, setChecking] = useState(false);
+
+  async function refresh() {
+    setChecking(true);
+    const next = await fetchNetworkStatus(endpoint);
+    setStatus(next);
+    setChecking(false);
+  }
+
+  useEffect(() => { void refresh(); }, [endpoint]);
+
+  const stateClass = status.state.toLowerCase();
+  return <section className="panel network-status-panel" aria-live="polite">
+    <div className="panel-header">
+      <div><div className="section-kicker">ZCASH CONNECTIVITY</div><h3>Read-only network status</h3></div>
+      <span className={`network-state ${stateClass}`}><span />{status.state}</span>
+    </div>
+    <div className="network-status-body">
+      <div className="network-status-main">
+        <strong>{status.blockHeight !== undefined ? status.blockHeight.toLocaleString("en-US") : "No block height"}</strong>
+        <span>{status.chainName === "main" ? "Zcash mainnet" : status.chainName === "test" ? "Zcash testnet" : "Chain not confirmed"}</span>
+      </div>
+      <p>{status.message}</p>
+      <div className="network-status-meta">
+        <span>Checked {new Date(status.checkedAt).toLocaleTimeString()}</span>
+        {status.observedAt && <span>Endpoint observed {new Date(status.observedAt).toLocaleTimeString()}</span>}
+      </div>
+      <button className="button secondary" onClick={() => void refresh()} disabled={checking}>{checking ? "Checking…" : "Refresh status"} <Icon name="activity" /></button>
+      {!endpoint && <p className="network-config-note">To enable this adapter, configure <code>VITE_ZECGUARD_STATUS_URL</code> with an HTTPS JSON status-proxy endpoint. No endpoint is configured in this build.</p>}
+      <p className="network-config-note">Endpoint-reported height only. This does not verify consensus, wallet balances, shielded funds, or campaign payments.</p>
+    </div>
+  </section>;
+}
+
 function Overview({ campaigns, entries, findings, balance, totalRaised, openFindings, setActive }: { campaigns: Campaign[]; entries: Entry[]; findings: Finding[]; balance: number; totalRaised: number; openFindings: number; setActive: (module: Module) => void }) {
   return <>
     <div className="welcome-banner"><div className="banner-grid" /><div className="banner-content"><div className="banner-chip"><span /> YOUR PRIVACY WORKSPACE</div><h2>Private by default.<br /><em>Verifiable by design.</em></h2><p>Tools for fundraising, team finances, and safer Zcash applications, without pretending privacy is a checkbox.</p><button className="button banner-button" onClick={() => setActive("PrivacyGuard")}>Review privacy checks <Icon name="arrow" /></button></div><div className="banner-art" aria-hidden="true"><div className="orbit orbit-one" /><div className="orbit orbit-two" /><div className="core-shield"><Icon name="shield" /></div><div className="art-tag tag-a"><span className="mini-dot green" /> SHIELDED</div><div className="art-tag tag-b"><span className="mini-dot amber" /> VERIFY</div></div></div>
+    <NetworkStatusPanel />
     <div className="section-row"><div><div className="section-kicker">WORKSPACE HEALTH</div><h2 className="section-title">Your overview</h2></div><span className="muted-inline">Illustrative local data <span className="status-dot amber" /></span></div>
     <div className="stats-grid">
       <Stat label="Campaigns tracked" value={String(campaigns.length).padStart(2, "0")} delta="Local campaign registry" icon="raise" accent="violet" />
