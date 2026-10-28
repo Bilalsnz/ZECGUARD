@@ -28,7 +28,7 @@ This is a prototype, not a production financial system.
 
 ## Data source and attribution
 
-Network Intelligence uses the public [ZecStats API](https://zecstats.org/api), which documents browser-readable GET endpoints, source-level freshness, and a CC BY 4.0 licence. ZECGUARD displays attribution and warns that the feed can be stale or unavailable. The data is useful network context, not cryptographic proof.
+Network Intelligence uses the public [ZecStats API](https://zecstats.org/api), which documents browser-readable GET endpoints, source-level freshness, and a CC BY 4.0 licence. ZECGUARD displays attribution and warns that the feed can be stale or unavailable. The browser request may expose ordinary connection metadata such as the user’s IP address to the third-party service, but it sends no wallet address or key. The data is useful network context, not cryptographic proof.
 
 ## Tech stack
 
