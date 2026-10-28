@@ -70,7 +70,7 @@ function Icon({ name }: { name: string }) {
 }
 
 export default function App() {
-  const [active, setActive] = useState<Module>("Overview");
+  const [active, setActive] = useState<Module>("PrivacyGuard");
   const [campaigns, setCampaigns] = useState<Campaign[]>(() => readLocalState("zecguard.campaigns.v1", initialCampaigns, isCampaignList));
   const [entries, setEntries] = useState<Entry[]>(() => readLocalState("zecguard.ledger.v1", initialEntries, isEntryList));
   const [findings, setFindings] = useState<Finding[]>(() => readLocalState("zecguard.findings.v1", initialFindings, isFindingList));
@@ -96,22 +96,22 @@ export default function App() {
   const balance = ledgerSummary.balance;
   const openFindings = findings.filter((item) => item.status === "Open").length;
   const nav: { name: Module; icon: string; eyebrow?: string }[] = [
+    { name: "PrivacyGuard", icon: "shield", eyebrow: "SECURITY" },
     { name: "Overview", icon: "grid" },
     { name: "PrivateRaise", icon: "raise", eyebrow: "FUNDING" },
     { name: "Treasury", icon: "treasury", eyebrow: "OPERATIONS" },
-    { name: "PrivacyGuard", icon: "shield", eyebrow: "SECURITY" },
   ];
   const pageTitle: Record<Module, string> = {
     Overview: "Privacy operations, at a glance.",
     PrivateRaise: "Fundraise without oversharing.",
     Treasury: "Keep the books. Protect the details.",
-    PrivacyGuard: "Find the leaks before they ship.",
+    PrivacyGuard: "Find privacy leaks before they ship.",
   };
   const pageSubtitle: Record<Module, string> = {
-    Overview: "A single workspace for private fundraising, treasury records, and privacy checks.",
-    PrivateRaise: "Campaign rules and progress in one place. Funding figures shown here are illustrative demo data.",
-    Treasury: "A practical ledger for team operations with a clear boundary between entered records and verified chain data.",
-    PrivacyGuard: "Review common privacy footguns and get remediation guidance. This demo does not scan a live repository.",
+    Overview: "Public network context plus clearly separated local workspace tools.",
+    PrivateRaise: "A local campaign-rule prototype. Funding progress is illustrative demo data, not live contributions.",
+    Treasury: "A local ledger for entered records, not verified wallet accounting.",
+    PrivacyGuard: "Scan a code snippet in your browser, inspect concrete findings, and review safer next steps. No repository upload or full-repo scan.",
   };
 
   function notify(message: string) {
@@ -189,7 +189,7 @@ export default function App() {
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <a className="brand" href="#" onClick={(e) => { e.preventDefault(); setActive("Overview"); }}>
+        <a className="brand" href="#" onClick={(e) => { e.preventDefault(); setActive("PrivacyGuard"); }}>
           <span className="brand-mark"><Icon name="shield" /></span>
           <span className="brand-name">ZEC<span>GUARD</span><small>PRIVACY INFRASTRUCTURE</small></span>
         </a>
@@ -211,7 +211,7 @@ export default function App() {
       <main className="main-area">
         <header className="topbar">
           <div className="breadcrumbs"><span>Workspace</span><span className="crumb-slash">/</span><strong>{active}</strong></div>
-          <div className="topbar-right"><button className="button secondary export-button" onClick={exportWorkspace}>Backup</button><span className="demo-pill" title="Public aggregate network metrics are sourced externally. Campaigns and ledger entries remain local demo data."><span /> MIXED DATA</span><button className="avatar" aria-label="Local demo profile">B</button></div>
+          <div className="topbar-right"><button className="button secondary export-button" onClick={exportWorkspace}>Backup</button><span className="demo-pill" title="PrivacyGuard scans pasted snippets locally. Network metrics are third-party public data; campaigns and treasury entries are local demo data."><span /> PUBLIC + LOCAL</span><button className="avatar" aria-label="Local demo profile">B</button></div>
         </header>
 
         <section className="page-content">
@@ -358,13 +358,13 @@ function Privacy({ findings, setFindings, scanDone, setScanDone, checkedFindings
       remediation: result.remediation,
       ruleId: result.ruleId,
     }));
-    setFindings((items) => [...next, ...items]);
+    setFindings(next);
     setScanDone(true);
     setScanMessage(results.length ? `Found ${results.length} potential issue(s). Review each result; heuristic matches can be false positives.` : "No configured patterns matched. This does not prove the snippet is safe.");
     notify(results.length ? `Snippet scan found ${results.length} potential issue(s).` : "No configured patterns matched.");
   };
-  return <><div className="module-toolbar"><div className="toolbar-copy"><span className="status-dot amber" /> {scanDone ? "Review run complete" : "Ready for review"} <span className="divider">/</span> {checkedFindings.length} open findings</div><button className="button secondary" onClick={() => { setScanDone(true); notify("Sample findings are displayed. No repository was scanned."); }}><Icon name="activity" /> Review sample</button></div>
-    <div className="scan-banner"><div className="scan-icon"><Icon name="shield" /></div><div><span className="section-kicker">PRIVACY REVIEW ENGINE</span><h2>{scanDone ? "Review your findings." : "Catch risky assumptions early."}</h2><p>Paste a small source snippet to run local heuristic checks for sensitive logging, transparent-address usage, browser key storage, telemetry, and absolute privacy claims.</p></div><div className="scan-status"><span className="status-dot amber" /> LOCAL RULESET</div></div>
+  return <><div className="module-toolbar"><div className="toolbar-copy"><span className="status-dot amber" /> {scanDone ? "Review run complete" : "Ready for review"} <span className="divider">/</span> {checkedFindings.length} open findings</div><button className="button secondary" onClick={runSnippetScan}><Icon name="activity" /> Run sample scan</button></div>
+    <div className="scan-banner"><div className="scan-icon"><Icon name="shield" /></div><div><span className="section-kicker">PRIVACYGUARD · CORE WORKFLOW</span><h2>{scanDone ? "Review the issues you found." : "Find the leaks before they ship."}</h2><p>Start with the sample, run a local scan, then inspect each rule ID, evidence summary, and mitigation. Your pasted snippet stays in this browser during scanning.</p></div><div className="scan-status"><span className="status-dot amber" /> HEURISTIC SCAN</div></div>
     <section className="panel snippet-panel"><div className="panel-header"><div><div className="section-kicker">LOCAL SNIPPET ANALYSIS</div><h3>Scan source text</h3></div><span className="badge badge-violet">NO UPLOAD</span></div><div className="snippet-content"><label className="snippet-label" htmlFor="privacy-snippet">Paste code or configuration (processed in this browser)</label><textarea id="privacy-snippet" className="snippet-input" value={snippet} onChange={(e) => setSnippet(e.target.value)} maxLength={50000} spellCheck={false} placeholder="Paste a small source snippet here..." /><div className="snippet-actions"><span>{snippet.length.toLocaleString()} / 50,000 characters · heuristic checks only</span><button className="button primary" onClick={runSnippetScan}><Icon name="activity" /> Scan snippet</button></div>{scanMessage && <p className="scan-message" role="status">{scanMessage}</p>}</div></section>
     <div className="scan-metrics"><div><span>Open findings</span><strong>{checkedFindings.length.toString().padStart(2, "0")}</strong></div><div><span>High severity</span><strong>{findings.filter((f) => f.severity === "High" && f.status === "Open").length.toString().padStart(2, "0")}</strong></div><div><span>Reviewed</span><strong>{findings.filter((f) => f.status === "Reviewed").length.toString().padStart(2, "0")}</strong></div><div><span>Repository scans</span><strong>00</strong></div></div>
     <section className="panel findings-panel"><div className="panel-header"><div><div className="section-kicker">FINDINGS REGISTER</div><h3>Potential privacy issues</h3></div><select className="filter-select" value={filter} onChange={(e) => setFilter(e.target.value)} aria-label="Filter findings"><option>All</option><option>High</option><option>Medium</option><option>Low</option><option>Open</option><option>Reviewed</option></select></div>
