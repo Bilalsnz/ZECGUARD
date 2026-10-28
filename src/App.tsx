@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { scanPrivacySnippet } from "./lib/scanner";
+import { summarizeLedger } from "./lib/treasury";
 
 type Module = "Overview" | "PrivateRaise" | "Treasury" | "PrivacyGuard";
 type Finding = { id: number; title: string; detail: string; severity: "High" | "Medium" | "Low"; status: "Open" | "Reviewed"; remediation?: string; ruleId?: string };
@@ -56,7 +57,8 @@ export default function App() {
   const [toast, setToast] = useState("");
 
   const totalRaised = campaigns.reduce((sum, item) => sum + item.raised, 0);
-  const balance = entries.reduce((sum, item) => sum + (item.type === "Inflow" ? item.amount : -item.amount), 0);
+  const ledgerSummary = summarizeLedger(entries);
+  const balance = ledgerSummary.balance;
   const openFindings = findings.filter((item) => item.status === "Open").length;
   const nav: { name: Module; icon: string; eyebrow?: string }[] = [
     { name: "Overview", icon: "grid" },
@@ -193,8 +195,8 @@ function Raise({ campaigns, onCreate }: { campaigns: Campaign[]; onCreate: () =>
 }
 
 function Treasury({ entries, balance, onCreate }: { entries: Entry[]; balance: number; onCreate: () => void }) {
-  const inflows = entries.filter((e) => e.type === "Inflow").reduce((s, e) => s + e.amount, 0);
-  const outflows = entries.filter((e) => e.type === "Outflow").reduce((s, e) => s + e.amount, 0);
+  const ledgerSummary = summarizeLedger(entries);
+  const { inflows, outflows } = ledgerSummary;
   return <><div className="module-toolbar"><div className="toolbar-copy"><span className="status-dot green" /> Local ledger <span className="divider">/</span> {entries.length} records</div><button className="button primary" onClick={onCreate}><Icon name="plus" /> Add record</button></div>
     <div className="notice"><Icon name="activity" /><div><strong>Ledger records are not blockchain proof</strong><p>This workspace calculates totals from records you enter. It is not connected to a Zcash wallet, and its current records must not be represented as independently verified funds.</p></div></div>
     <div className="stats-grid treasury-stats"><Stat label="Ledger balance" value={`${money(balance)} ZEC`} delta="Inflows minus outflows" icon="treasury" accent="blue" /><Stat label="Total inflows" value={`${money(inflows)} ZEC`} delta="All local inflow records" icon="raise" accent="green" /><Stat label="Total outflows" value={`${money(outflows)} ZEC`} delta="All local outflow records" icon="activity" accent="amber" /><Stat label="Verified on-chain" value="0.00 ZEC" delta="No chain integration yet" icon="shield" accent="violet" /></div>
