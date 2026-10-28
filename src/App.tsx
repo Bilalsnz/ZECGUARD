@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from "react";
 import { scanPrivacySnippet } from "./lib/scanner";
 import { summarizeLedger } from "./lib/treasury";
+import { commitCampaignRules } from "./lib/campaignIntegrity";
 
 type Module = "Overview" | "PrivateRaise" | "Treasury" | "PrivacyGuard";
 type Finding = { id: number; title: string; detail: string; severity: "High" | "Medium" | "Low"; status: "Open" | "Reviewed"; remediation?: string; ruleId?: string };
-type Campaign = { name: string; category: string; target: number; raised: number; days: number; status: string };
+type Campaign = { name: string; category: string; target: number; raised: number; days: number; status: string; fingerprint?: string };
 type Entry = { id: number; label: string; type: "Inflow" | "Outflow"; amount: number; date: string; note: string };
 
 const initialCampaigns: Campaign[] = [
@@ -49,6 +50,8 @@ export default function App() {
   const [campaignModal, setCampaignModal] = useState(false);
   const [entryModal, setEntryModal] = useState(false);
   const [campaignName, setCampaignName] = useState("");
+  const [campaignDescription, setCampaignDescription] = useState("");
+  const [campaignDeadline, setCampaignDeadline] = useState(() => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10));
   const [campaignTarget, setCampaignTarget] = useState("10");
   const [entryLabel, setEntryLabel] = useState("");
   const [entryAmount, setEntryAmount] = useState("");
@@ -83,16 +86,40 @@ export default function App() {
     setToast(message);
     window.setTimeout(() => setToast(""), 3000);
   }
-  function createCampaign(event: React.FormEvent<HTMLFormElement>) {
+  async function createCampaign(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const target = Number(campaignTarget);
-    if (!campaignName.trim() || !Number.isFinite(target) || target <= 0) return;
-    setCampaigns((items) => [{ name: campaignName.trim(), category: "Community", target, raised: 0, days: 30, status: "Draft" }, ...items]);
-    setCampaignName("");
-    setCampaignTarget("10");
-    setCampaignModal(false);
-    setActive("PrivateRaise");
-    notify("Draft campaign created locally.");
+    if (!campaignName.trim() || !campaignDescription.trim() || !Number.isFinite(target) || target <= 0 || !campaignDeadline) return;
+    try {
+      const deadlineUtc = new Date(`${campaignDeadline}T23:59:59.000Z`).toISOString();
+      const fingerprint = await commitCampaignRules({
+        name: campaignName,
+        description: campaignDescription,
+        targetZec: target,
+        deadlineUtc,
+        minimumContributionZec: 0,
+        refundIfTargetNotMet: false,
+      });
+      const days = Math.max(0, Math.ceil((new Date(deadlineUtc).getTime() - Date.now()) / 86400000));
+      setCampaigns((items) => [{
+        name: campaignName.trim(),
+        category: "Community",
+        target,
+        raised: 0,
+        days,
+        status: "Draft",
+        fingerprint,
+      }, ...items]);
+      setCampaignName("");
+      setCampaignDescription("");
+      setCampaignTarget("10");
+      setCampaignDeadline(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10));
+      setCampaignModal(false);
+      setActive("PrivateRaise");
+      notify("Local draft created with a SHA-256 rules fingerprint.");
+    } catch (error) {
+      notify(error instanceof Error ? error.message : "Could not fingerprint campaign rules.");
+    }
   }
   function createEntry(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -149,7 +176,7 @@ export default function App() {
         </section>
       </main>
 
-      {campaignModal && <Modal title="Create a campaign draft" onClose={() => setCampaignModal(false)}><form onSubmit={createCampaign} className="modal-form"><label>Campaign name<input autoFocus value={campaignName} onChange={(e) => setCampaignName(e.target.value)} placeholder="e.g. Open-source wallet UX" required maxLength={80} /></label><label>Funding target (ZEC)<input type="number" min="0.01" step="0.01" value={campaignTarget} onChange={(e) => setCampaignTarget(e.target.value)} required /></label><div className="notice small-notice"><Icon name="activity" /> This creates a local draft only. No wallet is connected and no funds can be received.</div><button className="button primary full" type="submit">Create local draft <Icon name="arrow" /></button></form></Modal>}
+      {campaignModal && <Modal title="Create a campaign draft" onClose={() => setCampaignModal(false)}><form onSubmit={createCampaign} className="modal-form"><label>Campaign name<input autoFocus value={campaignName} onChange={(e) => setCampaignName(e.target.value)} placeholder="e.g. Open-source wallet UX" required maxLength={80} /></label><label>Campaign purpose<textarea value={campaignDescription} onChange={(e) => setCampaignDescription(e.target.value)} placeholder="What will the funds support?" required maxLength={500} rows={3} /></label><label>Funding target (ZEC)<input type="number" min="0.01" step="0.01" value={campaignTarget} onChange={(e) => setCampaignTarget(e.target.value)} required /></label><label>Campaign deadline<input type="date" min={new Date().toISOString().slice(0, 10)} value={campaignDeadline} onChange={(e) => setCampaignDeadline(e.target.value)} required /></label><div className="notice small-notice"><Icon name="activity" /> A SHA-256 fingerprint commits to these rules in this browser. It is not on-chain, signed, timestamped, or proof of payment.</div><button className="button primary full" type="submit">Create draft + fingerprint <Icon name="arrow" /></button></form></Modal>}
       {entryModal && <Modal title="Add a ledger record" onClose={() => setEntryModal(false)}><form onSubmit={createEntry} className="modal-form"><label>Record description<input autoFocus value={entryLabel} onChange={(e) => setEntryLabel(e.target.value)} placeholder="e.g. Contributor payment" required maxLength={100} /></label><label>Record type<select value={entryType} onChange={(e) => setEntryType(e.target.value as "Inflow" | "Outflow")}><option>Inflow</option><option>Outflow</option></select></label><label>Amount (ZEC)<input type="number" min="0.01" step="0.01" value={entryAmount} onChange={(e) => setEntryAmount(e.target.value)} required /></label><div className="notice small-notice">This is a user-entered record, not a verified blockchain transaction.</div><button className="button primary full" type="submit">Add record <Icon name="arrow" /></button></form></Modal>}
       {toast && <div className="toast"><Icon name="check" />{toast}</div>}
     </div>
@@ -189,8 +216,8 @@ function Stat({ label, value, delta, icon, accent }: { label: string; value: str
 function Raise({ campaigns, onCreate }: { campaigns: Campaign[]; onCreate: () => void }) {
   return <><div className="module-toolbar"><div className="toolbar-copy"><span className="status-dot green" /> Campaign registry <span className="divider">/</span> {campaigns.length} campaigns</div><button className="button primary" onClick={onCreate}><Icon name="plus" /> New campaign</button></div>
     <div className="notice"><Icon name="lock" /><div><strong>Privacy with honest boundaries</strong><p>Shielded payments can conceal transaction details from public observers, but campaign totals require a real accounting and verification mechanism. These cards use sample data.</p></div></div>
-    <div className="campaign-grid">{campaigns.map((c, i) => { const pct = Math.min(c.raised / c.target * 100, 100); return <article className="campaign-card" key={c.name}><div className="campaign-card-top"><div className={`campaign-icon large icon-${i % 3}`}>{["◈", "↗", "✳"][i % 3]}</div><span className={c.status === "Target met" ? "badge badge-green" : c.status === "Draft" ? "badge badge-muted" : "badge badge-amber"}>{c.status}</span></div><span className="category-label">{c.category}</span><h3>{c.name}</h3><div className="raised-number">{money(c.raised)} <small>ZEC <span>raised</span></small></div><div className="progress-track thick"><div style={{ width: `${pct}%` }} /></div><div className="progress-meta"><span>{Math.round(pct)}% funded</span><span>Target {money(c.target)} ZEC</span></div><div className="campaign-card-bottom"><span><Icon name="activity" /> {c.days ? `${c.days} days left` : "Target met"}</span><button className="icon-button" onClick={() => alert("Demo only: campaign details and contribution flow are not connected to a wallet.")} aria-label={`View ${c.name}`}><Icon name="arrow" /></button></div></article>; })}</div>
-    <div className="panel rule-panel"><div className="panel-header"><div><div className="section-kicker">PROPOSED PROTOCOL</div><h3>Campaign integrity checklist</h3></div><span className="badge badge-violet">DESIGN TARGET</span></div><div className="checklist-grid">{["Commit campaign rules before accepting funds", "Make later rule changes detectable", "Define threshold and refund conditions", "Publish verifiable settlement evidence"].map((item, i) => <div className="checklist-item" key={item}><span className="check-number">0{i + 1}</span><span>{item}</span><span className="check-pending">PLANNED</span></div>)}</div></div>
+    <div className="campaign-grid">{campaigns.map((c, i) => { const pct = Math.min(c.raised / c.target * 100, 100); return <article className="campaign-card" key={c.name}><div className="campaign-card-top"><div className={`campaign-icon large icon-${i % 3}`}>{["◈", "↗", "✳"][i % 3]}</div><span className={c.status === "Target met" ? "badge badge-green" : c.status === "Draft" ? "badge badge-muted" : "badge badge-amber"}>{c.status}</span></div><span className="category-label">{c.category}</span><h3>{c.name}</h3><div className="raised-number">{money(c.raised)} <small>ZEC <span>raised</span></small></div><div className="progress-track thick"><div style={{ width: `${pct}%` }} /></div><div className="progress-meta"><span>{Math.round(pct)}% funded</span><span>Target {money(c.target)} ZEC</span></div>{c.fingerprint && <div className="fingerprint-row"><span>LOCAL RULE FINGERPRINT</span><code title={c.fingerprint}>{c.fingerprint.slice(0, 12)}…{c.fingerprint.slice(-8)}</code></div>}<div className="campaign-card-bottom"><span><Icon name="activity" /> {c.days ? `${c.days} days left` : "Target met"}</span><button className="icon-button" onClick={() => alert("Demo only: campaign details and contribution flow are not connected to a wallet.")} aria-label={`View ${c.name}`}><Icon name="arrow" /></button></div></article>; })}</div>
+    <div className="panel rule-panel"><div className="panel-header"><div><div className="section-kicker">PROPOSED PROTOCOL</div><h3>Campaign integrity checklist</h3></div><span className="badge badge-violet">DESIGN TARGET</span></div><div className="checklist-grid">{["Local draft rules fingerprinted with SHA-256", "Changing a rule changes its fingerprint", "No on-chain publication or signature yet", "Settlement evidence and refund execution remain unimplemented"].map((item, i) => <div className="checklist-item" key={item}><span className="check-number">0{i + 1}</span><span>{item}</span><span className={i < 2 ? "check-done" : "check-pending"}>{i < 2 ? "IMPLEMENTED" : "NOT BUILT"}</span></div>)}</div></div>
   </>;
 }
 
