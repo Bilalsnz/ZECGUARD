@@ -211,7 +211,7 @@ export default function App() {
       <main className="main-area">
         <header className="topbar">
           <div className="breadcrumbs"><span>Workspace</span><span className="crumb-slash">/</span><strong>{active}</strong></div>
-          <div className="topbar-right"><button className="button secondary export-button" onClick={exportWorkspace}>Backup</button><span className="demo-pill"><span /> DEMO DATA</span><button className="avatar" aria-label="Local demo profile">B</button></div>
+          <div className="topbar-right"><button className="button secondary export-button" onClick={exportWorkspace}>Backup</button><span className="demo-pill" title="Public aggregate network metrics are sourced externally. Campaigns and ledger entries remain local demo data."><span /> MIXED DATA</span><button className="avatar" aria-label="Local demo profile">B</button></div>
         </header>
 
         <section className="page-content">
