@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 type Module = "Overview" | "PrivateRaise" | "Treasury" | "PrivacyGuard";
 type Finding = { id: number; title: string; detail: string; severity: "High" | "Medium" | "Low"; status: "Open" | "Reviewed" };
