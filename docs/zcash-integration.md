@@ -2,7 +2,7 @@
 
 ## Current decision
 
-ZECGUARD is a Vite browser application. It does not currently have a Zcash wallet SDK, a lightwalletd client, a wallet connection, or a transaction submission path. The UI must continue to label all sample balances, fundraising totals, and ledger records as demo or user-entered data.
+ZECGUARD is a Vite browser application. It now reads public aggregate Zcash metrics from the CORS-enabled ZecStats API and checks the response schema, snapshot age, and per-section freshness. This is a read-only third-party data feed, not a direct node connection or independent consensus proof. The application still has no Zcash wallet SDK, lightwalletd client, wallet connection, transaction signing, or transaction submission path. Campaign progress and treasury entries remain local demo/user-entered data.
 
 Do not add a pretend wallet-connect button, hard-coded chain values, or a public explorer lookup that is presented as proof of shielded funds.
 
@@ -15,15 +15,23 @@ Do not add a pretend wallet-connect button, hard-coded chain values, or a public
 
 ## Phased integration plan
 
-### Phase 1: Safe read-only network status
+### Phase 1: Public aggregate network context (implemented)
 
-1. Select a maintained, permitted testnet lightwalletd endpoint or run a test service.
-2. Confirm service health, network identity, tip height, and freshness before showing any result.
-3. Put any required network adapter behind a narrow server endpoint if browser gRPC compatibility is not available.
-4. Return explicit `live`, `stale`, `demo`, or `unavailable` states. Never fall back silently from a failed live request to demo data.
-5. Add tests for network mismatch, timeout, malformed response, and stale data.
+1. Read the documented ZecStats summary endpoint over HTTPS.
+2. Validate required fields and reject malformed responses.
+3. Check both snapshot age and network/pool source provenance before displaying `LIVE`.
+4. Label stale data and show `UNAVAILABLE` on request or schema failures.
+5. Attribute ZecStats under CC BY 4.0 and state clearly that aggregate statistics are not individual balances or payment proofs.
 
-### Phase 2: Wallet-aware flows
+### Phase 2: Direct node / wallet path (not implemented)
+
+1. Select and verify a maintained testnet lightwalletd service or run a controlled test service.
+2. Choose a supported SDK strategy; the Android SDK is native and is not a drop-in browser library.
+3. Keep spending keys outside browser storage and telemetry.
+4. Use testnet/regtest for the first transaction flow and verify its status from the network.
+5. Add explicit consent, fees, transaction states, failure recovery, and reproducible tests.
+
+### Phase 3: Wallet-aware flows
 
 1. Choose a supported wallet integration strategy with the relevant wallet maintainers.
 2. Keep seed phrases, spending keys, and viewing keys outside browser local storage and outside application telemetry.
@@ -31,7 +39,7 @@ Do not add a pretend wallet-connect button, hard-coded chain values, or a public
 4. Verify transaction status from the network, not from a successful button click or a locally created record.
 5. Add clear user consent, fee display, transaction state handling, and failure recovery.
 
-### Phase 3: Fundraising integrity
+### Phase 4: Fundraising integrity
 
 1. Canonicalize campaign rules before opening a campaign.
 2. Create a deterministic commitment to those rules and show its fingerprint.
@@ -45,8 +53,9 @@ This repository should remain usable without paid APIs. A public community endpo
 
 ## Acceptance criteria before calling it a real integration
 
-- The selected endpoint's network is positively identified.
-- UI displays live/stale/unavailable state based on actual responses.
+- Public aggregate feed response is schema-validated and attributed.
+- UI displays live/stale/unavailable state based on actual response freshness and source provenance.
+- Direct node/wallet integration remains a separate acceptance gate; do not imply it exists.
 - No hard-coded balances or transaction hashes are presented as chain results.
 - No seed phrase, private key, or viewing key is collected by the web app.
 - Testnet transaction flow has automated checks and a reproducible demo.
