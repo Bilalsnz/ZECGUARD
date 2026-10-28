@@ -281,7 +281,7 @@ function NetworkStatusPanel() {
         <button className="button secondary" onClick={() => void refresh()} disabled={checking}>{checking ? "Refreshing…" : "Refresh metrics"} <Icon name="activity" /></button>
         <a className="network-source-link" href="https://zecstats.org/api" target="_blank" rel="noreferrer">Source & methodology ↗</a>
       </div>
-      <p className="network-config-note">Source: ZecStats public API, CC BY 4.0. Metrics are third-party aggregate observations and may be stale. They do not prove wallet ownership, shielded balances, or campaign payments. No wallet secrets are requested or sent.</p>
+      <p className="network-config-note">Source: ZecStats public API, CC BY 4.0. Your browser contacts this third-party service, which may observe ordinary connection metadata such as your IP address. The request sends no wallet address or keys. Metrics may be stale and do not prove wallet ownership, shielded balances, or campaign payments.</p>
     </div>
   </section>;
 }
