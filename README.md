@@ -4,15 +4,17 @@
 
 ZECGUARD is an open-source exploration of privacy-aware financial tooling for the Zcash ecosystem. It brings three related workflows together:
 
-- **PrivateRaise** — fundraising campaigns with explicit rules and verifiable outcomes.
+- **PrivateRaise** — fundraising campaign drafts with explicit boundaries and a path toward verifiable outcomes.
 - **Private Treasury** — team cash-flow records and reporting that distinguish user-entered records from verified chain data.
-- **PrivacyGuard** — developer-oriented checks for potential privacy leaks and unsafe assumptions.
+- **PrivacyGuard** — developer-oriented heuristic checks for potential privacy leaks and unsafe assumptions.
 
 ## Status
 
 Early-stage prototype. The UI and local demo workflows are not a production financial system.
 
 **No real Zcash transactions are currently sent or verified.** Sample figures are illustrative. Do not send funds or use this prototype to make financial decisions.
+
+PrivacyGuard currently scans only source snippets pasted into the browser. The snippet is processed locally by heuristic rules and is not uploaded by the scanner. It is not a full parser, repository scanner, formal audit, or proof that code without findings is safe. Findings may include false positives and false negatives.
 
 ## Product principles
 
@@ -22,13 +24,12 @@ Early-stage prototype. The UI and local demo workflows are not a production fina
 4. **Demo data stays labelled.** Sample data must never be presented as live blockchain information.
 5. **Zero paid dependencies by default.** Local development should work with open-source tooling.
 
-## Planned architecture
+## Stack
 
-- React + TypeScript + Vite frontend
-- Pure, testable domain logic for campaign rules and treasury reconciliation
-- Privacy checks with severity, evidence, limitations, and remediation
-- Zcash integration only after wallet, SDK, and test-network capabilities are verified
-- No private keys or viewing keys stored in frontend local storage
+- React + TypeScript + Vite
+- Local, heuristic PrivacyGuard scanner
+- Vitest unit tests for scanner rules
+- GitHub Actions test and production-build checks
 
 ## Run locally
 
@@ -41,12 +42,19 @@ npm run dev
 
 Then open the local URL printed by Vite.
 
+Run the scanner unit tests and production build:
+
+```bash
+npm test
+npm run build
+```
+
 ## Roadmap
 
 - [x] Establish product scope and privacy-first principles
 - [x] Build responsive prototype for the three modules
+- [x] Add initial heuristic privacy scanner and unit tests
 - [ ] Add tests for campaign rule commitments and treasury calculations
-- [ ] Implement evidence-based privacy checks
 - [ ] Verify current Zcash testnet and wallet integration options
 - [ ] Integrate real chain data with explicit live/stale/demo states
 - [ ] Security review before handling real funds
