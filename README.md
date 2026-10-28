@@ -64,6 +64,22 @@ The integration is intentionally not faked. Read the [Zcash integration path](do
 - [ ] Integrate real chain data with explicit live/stale/demo states
 - [ ] Security review before handling real funds
 
+## Read-only Zcash network status adapter
+
+The dashboard includes an optional read-only status adapter. It does **not** connect directly to lightwalletd: lightwalletd exposes gRPC/protobuf, while this frontend adapter expects a separately operated or otherwise trusted HTTPS JSON status endpoint configured through `VITE_ZECGUARD_STATUS_URL`. No endpoint is configured by default, so the dashboard correctly shows `UNAVAILABLE` rather than inventing live chain data.
+
+The endpoint must return JSON in this shape:
+
+```json
+{
+  "chainName": "main",
+  "blockHeight": 3000000,
+  "observedAt": "2026-10-28T12:00:00.000Z"
+}
+```
+
+`chainName` must be `main` or `test`; `blockHeight` must be a non-negative integer; `observedAt` must be an ISO-8601 timestamp generated when the endpoint observed the chain status. Responses older than two minutes are marked `STALE`. The status is still only endpoint-reported data, not an independent consensus proof and not proof of any shielded balance or campaign payment. Do not point this setting at an endpoint unless you trust its operator, and do not send wallet secrets to it.
+
 ## Local data behavior
 
 Campaign drafts, ledger entries, and finding review statuses are saved in the current browser using local storage. They are not synced to an account, encrypted by this application, backed up, or published to Zcash. Clearing browser site data can erase them. Use the **Backup** button to download a JSON copy; that file may contain sensitive operational notes, so keep it private. Treat the ledger as an operational note-taking aid, not an accounting source of truth. Seed phrases, private keys, and viewing keys must never be entered.
