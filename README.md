@@ -64,6 +64,10 @@ The integration is intentionally not faked. Read the [Zcash integration path](do
 - [ ] Integrate real chain data with explicit live/stale/demo states
 - [ ] Security review before handling real funds
 
+## Local data behavior
+
+Campaign drafts, ledger entries, and finding review statuses are saved in the current browser using local storage. They are not synced to an account, encrypted by this application, backed up, or published to Zcash. Clearing browser site data can erase them. Treat the ledger as an operational note-taking aid, not an accounting source of truth. Seed phrases, private keys, and viewing keys must never be entered.
+
 ## Security
 
 This repository is experimental software. It has not been audited. Never enter seed phrases, private keys, or viewing keys into this application. Report suspected vulnerabilities privately to the maintainers rather than publishing exploit details.
