@@ -18,3 +18,51 @@
 
 .snippet-panel{margin-bottom:18px}.snippet-content{padding:17px 19px}.snippet-label{display:block;color:#aeb7c7;font-size:10px;margin-bottom:9px}.snippet-input{display:block;width:100%;min-height:145px;resize:vertical;background:#0d1017;border:1px solid #303747;border-radius:7px;color:#c9d8cf;padding:13px;font:11px/1.7 'DM Mono',monospace;tab-size:2}.snippet-input:focus{border-color:#647e6b;outline:2px solid #9fe5b31c}.snippet-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:11px}.snippet-actions>span{font-size:9px;color:#7e899a}.scan-message{margin:12px 0 0;padding:10px 12px;border:1px solid #344c3a;border-radius:6px;background:#19251d;color:#a9dfb6;font-size:10px;line-height:1.6}.rule-id{font:9px 'DM Mono',monospace;color:#929bb0;background:#202530;padding:4px 6px;border-radius:4px}
 @media(max-width:760px){.snippet-content{padding:13px}.snippet-input{min-height:125px;font-size:10px}.snippet-actions{align-items:flex-start;flex-direction:column}.snippet-actions>span{line-height:1.5}.snippet-actions .button{width:100%}}
+
+
+/* Campaign rule fingerprint and integrity state */
+.fingerprint-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(137, 121, 255, 0.22);
+  border-radius: 8px;
+  background: rgba(137, 121, 255, 0.055);
+}
+.fingerprint-row span {
+  color: var(--muted, #8b8ca7);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .09em;
+}
+.fingerprint-row code {
+  color: #b8adff;
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+.modal-form textarea,
+.modal-form input[type="date"] {
+  width: 100%;
+  border: 1px solid var(--border, #2a2b42);
+  border-radius: 9px;
+  background: var(--surface-2, #10111c);
+  color: var(--text, #f2f2fa);
+  padding: 12px 13px;
+  font: inherit;
+  resize: vertical;
+}
+.modal-form textarea:focus,
+.modal-form input[type="date"]:focus {
+  outline: 1px solid #8b7cff;
+  border-color: #8b7cff;
+}
+.check-done {
+  color: #73e0b0;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .07em;
+}
