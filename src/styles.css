@@ -109,3 +109,10 @@
 .network-warning-list p{font-size:9px;color:#e5c28c;line-height:1.5;display:flex;gap:7px;margin:5px 0}
 .network-warning-list svg{width:12px;height:12px;flex:none}
 @media(max-width:760px){.network-status-body{padding:14px;gap:12px}.network-metric-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.network-metric{padding:11px}.network-metric strong{font-size:18px}.network-status-actions{gap:12px}}
+
+
+/* Compact product metadata in place of oversized disclaimer panels */
+.field-hint{font-size:10px;color:#8490a1;line-height:1.5;padding:2px 0}
+.privacy-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.privacy-meta span{font:9px 'DM Mono',monospace;letter-spacing:.02em;color:#9aa6b7;border:1px solid #2a303b;background:#11151d;border-radius:5px;padding:7px 9px}
+.network-config-note{font-size:9px;color:#788395;line-height:1.5}
