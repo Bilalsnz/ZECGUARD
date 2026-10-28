@@ -2,36 +2,38 @@
 
 **Privacy operations for Zcash.**
 
-ZECGUARD is an open-source exploration of privacy-aware financial tooling for the Zcash ecosystem. It brings three related workflows together:
+ZECGUARD is an early-stage, open-source workspace for people building financial applications around Zcash. It puts public network context, application privacy checks, campaign-rule integrity, and treasury reconciliation in one place.
 
-- **PrivateRaise** — fundraising campaign drafts with explicit boundaries and a path toward verifiable outcomes.
-- **Private Treasury** — team cash-flow records and reporting that distinguish user-entered records from verified chain data.
-- **PrivacyGuard** — developer-oriented heuristic checks for potential privacy leaks and unsafe assumptions.
+## What it does
 
-## Status
+- **Network Intelligence** — reads public aggregate Zcash metrics from the ZecStats API, validates response fields and source freshness, and labels data as LIVE, STALE, or UNAVAILABLE.
+- **PrivateRaise** — creates local campaign drafts and deterministic SHA-256 fingerprints of normalized rules so edits are detectable.
+- **Private Treasury** — reconciles user-entered inflows and outflows, rounds calculations to eight decimal places, and flags invalid amounts.
+- **PrivacyGuard** — runs heuristic checks on source snippets inside the browser for risky patterns such as sensitive logging, unsafe browser key storage, transparent-address assumptions, telemetry, and absolute privacy claims.
+- **Local workspace** — persists campaign drafts, ledger entries, and review status in browser storage and exports a JSON backup.
 
-Early-stage prototype. The UI and local demo workflows are not a production financial system.
+## Current status and boundaries
 
-**No real Zcash transactions are currently sent or verified.** Sample figures are illustrative. Do not send funds or use this prototype to make financial decisions.
+This is a prototype, not a production financial system.
 
-PrivacyGuard currently scans only source snippets pasted into the browser. The snippet is processed locally by heuristic rules and is not uploaded by the scanner. It is not a full parser, repository scanner, formal audit, or proof that code without findings is safe. Findings may include false positives and false negatives.
+- Network Intelligence uses a **third-party, read-only aggregate data feed**. It is not a direct node connection or independent consensus verification.
+- Aggregate shielded-pool statistics are not an individual's wallet balance and cannot prove ownership or payment.
+- Campaign fingerprints are local SHA-256 digests, not signatures, timestamps, on-chain commitments, or proof of funds.
+- Treasury entries are user-entered operational notes, not verified transactions.
+- PrivacyGuard only scans pasted snippets. It is not a full parser, repository scanner, formal audit, or proof that code without findings is safe.
+- No wallet is connected. The app does not request seed phrases, spending keys, or viewing keys, and it does not sign or broadcast transactions.
+- Browser local storage and downloaded backups are not encrypted by this application. Keep backups private.
 
-## Product principles
+## Data source and attribution
 
-1. **Privacy claims must be specific.** Shielded transaction contents, network metadata, wallet behavior, and application logs are different privacy surfaces.
-2. **Verification must be evidence-backed.** A UI, indexer result, or self-reported record is not automatically cryptographic proof.
-3. **No silent rule changes.** Fundraising conditions should be committed before accepting contributions, with changes detectable.
-4. **Demo data stays labelled.** Sample data must never be presented as live blockchain information.
-5. **Zero paid dependencies by default.** Local development should work with open-source tooling.
+Network Intelligence uses the public [ZecStats API](https://zecstats.org/api), which documents browser-readable GET endpoints, source-level freshness, and a CC BY 4.0 licence. ZECGUARD displays attribution and warns that the feed can be stale or unavailable. The data is useful network context, not cryptographic proof.
 
-## Stack
+## Tech stack
 
-- React + TypeScript + Vite
-- Local, heuristic PrivacyGuard scanner
-- SHA-256 fingerprints for normalized local campaign draft rules
-- Validated treasury reconciliation helpers
-- Vitest unit tests for scanner, campaign fingerprints, and treasury math
-- GitHub Actions test and production-build checks
+- React 18, TypeScript, Vite
+- Vitest unit tests
+- GitHub Actions test and production-build workflow
+- No paid API key required for the current public aggregate data feed
 
 ## Run locally
 
@@ -42,64 +44,38 @@ npm install
 npm run dev
 ```
 
-Then open the local URL printed by Vite.
+Open the local URL printed by Vite.
 
-Run the scanner unit tests and production build:
+Run automated tests and the production build:
 
 ```bash
 npm test
 npm run build
 ```
 
-## Zcash integration
-
-ZECGUARD reads public aggregate Zcash network metrics from the CORS-enabled [ZecStats API](https://zecstats.org/api), including reported block height and shielded-pool statistics. It checks response shape, snapshot age, and source-level freshness, and attributes the data under CC BY 4.0. This is a third-party read-only data feed, not a wallet connection, independent consensus verification, or proof of an individual balance or payment. No transaction signing or broadcasting is implemented. Read the [Zcash integration path](docs/zcash-integration.md) for the wallet and lightwalletd boundaries. Campaign drafts produce local SHA-256 rule fingerprints only, while treasury records remain user-entered notes.
-
 ## Roadmap
 
-- [x] Establish product scope and privacy-first principles
-- [x] Build responsive prototype for the three modules
-- [x] Add initial heuristic privacy scanner and unit tests
-- [x] Add deterministic local campaign-rule fingerprints
-- [x] Add validated treasury reconciliation helpers and tests
-- [x] Document a phased Zcash integration path
-- [x] Add tests for campaign rule commitments and treasury calculations
-- [ ] Persist/sign campaign rule commitments in a trusted, independently verifiable way
-- [ ] Verify a viable testnet wallet integration strategy
-- [x] Integrate attributed public aggregate Zcash data with explicit live/stale/unavailable states
+- [x] Responsive privacy-operations dashboard
+- [x] Local heuristic snippet scanner and tests
+- [x] Canonical local campaign-rule fingerprints and tests
+- [x] Treasury reconciliation helpers and tests
+- [x] Browser-local persistence and downloadable JSON backup
+- [x] Attributed public aggregate Zcash metrics with freshness checks
+- [x] Competition submission kit and demo script
+- [ ] Supported wallet/testnet integration with reproducible transaction verification
+- [ ] Independently verifiable campaign commitments and contribution accounting
 - [ ] Security review before handling real funds
 
-## Read-only Zcash network status adapter
-
-The dashboard includes an optional read-only status adapter. It does **not** connect directly to lightwalletd: lightwalletd exposes gRPC/protobuf, while this frontend adapter expects a separately operated or otherwise trusted HTTPS JSON status endpoint configured through `VITE_ZECGUARD_STATUS_URL`. No endpoint is configured by default, so the dashboard correctly shows `UNAVAILABLE` rather than inventing live chain data.
-
-The endpoint must return JSON in this shape:
-
-```json
-{
-  "chainName": "main",
-  "blockHeight": 3000000,
-  "observedAt": "2026-10-28T12:00:00.000Z"
-}
-```
-
-`chainName` must be `main` or `test`; `blockHeight` must be a non-negative integer; `observedAt` must be an ISO-8601 timestamp generated when the endpoint observed the chain status. Responses older than two minutes are marked `STALE`. The status is still only endpoint-reported data, not an independent consensus proof and not proof of any shielded balance or campaign payment. Do not point this setting at an endpoint unless you trust its operator, and do not send wallet secrets to it.
-
-## Local data behavior
-
-Campaign drafts, ledger entries, and finding review statuses are saved in the current browser using local storage. They are not synced to an account, encrypted by this application, backed up, or published to Zcash. Clearing browser site data can erase them. Use the **Backup** button to download a JSON copy; that file may contain sensitive operational notes, so keep it private. Treat the ledger as an operational note-taking aid, not an accounting source of truth. Seed phrases, private keys, and viewing keys must never be entered.
-
-## Security
-
-This repository is experimental software. It has not been audited. Never enter seed phrases, private keys, or viewing keys into this application. Report suspected vulnerabilities privately to the maintainers rather than publishing exploit details.
-
-## License
-
-MIT. See [LICENSE](LICENSE).
-
-
-## Submission kit
+## Documentation
 
 - [Competition submission kit](docs/submission-kit.md)
 - [90-second demo script](docs/demo-script.md)
 - [Zcash integration path and limitations](docs/zcash-integration.md)
+
+## Security
+
+This repository has not been audited. Never enter seed phrases, private keys, or viewing keys. Do not send funds or make financial decisions based on this prototype. Report suspected vulnerabilities privately to the maintainer rather than publishing exploit details.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
