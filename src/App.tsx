@@ -274,7 +274,7 @@ function NetworkStatusPanel() {
       <p className="network-status-message">{snapshot.message}</p>
       <div className="network-status-meta">
         <span>Checked {new Date(snapshot.checkedAt).toLocaleTimeString()}</span>
-        {snapshot.generatedAt && <span>Snapshot {new Date(snapshot.generatedAt).toLocaleString()}</span>}
+        {snapshot.generatedAt && <span>Snapshot {new Date(snapshot.generatedAt).toLocaleString()}</span>}{(snapshot.networkSource || snapshot.poolsSource) && <span>Sources: {snapshot.networkSource || "network source unavailable"} / {snapshot.poolsSource || "pool source unavailable"}</span>}
       </div>
       {snapshot.warnings.length > 0 && <div className="network-warning-list">{snapshot.warnings.map((warning, index) => <p key={index}><Icon name="activity" /> {warning}</p>)}</div>}
       <div className="network-status-actions">
