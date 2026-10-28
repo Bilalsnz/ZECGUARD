@@ -51,7 +51,7 @@ npm run build
 
 ## Zcash integration
 
-The integration is intentionally not faked. Read the [Zcash integration path](docs/zcash-integration.md) for the official tooling references, phased approach, security boundaries, and acceptance criteria for a real testnet integration. Campaign drafts can now produce a local SHA-256 fingerprint of normalized rules. This detects changes to the rule text, but it is not on-chain, signed, timestamped, or proof of funds. The treasury helper validates amounts and reconciles user-entered ledger records only.
+ZECGUARD reads public aggregate Zcash network metrics from the CORS-enabled [ZecStats API](https://zecstats.org/api), including reported block height and shielded-pool statistics. It checks response shape, snapshot age, and source-level freshness, and attributes the data under CC BY 4.0. This is a third-party read-only data feed, not a wallet connection, independent consensus verification, or proof of an individual balance or payment. No transaction signing or broadcasting is implemented. Read the [Zcash integration path](docs/zcash-integration.md) for the wallet and lightwalletd boundaries. Campaign drafts produce local SHA-256 rule fingerprints only, while treasury records remain user-entered notes.
 
 ## Roadmap
 
@@ -59,9 +59,9 @@ The integration is intentionally not faked. Read the [Zcash integration path](do
 - [x] Build responsive prototype for the three modules
 - [x] Add initial heuristic privacy scanner and unit tests\n- [x] Add deterministic local campaign-rule fingerprints\n- [x] Add validated treasury reconciliation helpers and tests
 - [x] Document a phased Zcash integration path
-- [ ] Add tests for campaign rule commitments and treasury calculations
-- [ ] Persist/sign campaign rule commitments in a trusted, independently verifiable way\n- [ ] Verify a viable testnet endpoint and wallet integration strategy
-- [ ] Integrate real chain data with explicit live/stale/demo states
+- [x] Add tests for campaign rule commitments and treasury calculations
+- [ ] Persist/sign campaign rule commitments in a trusted, independently verifiable way\n- [ ] Verify a viable testnet wallet integration strategy
+- [x] Integrate attributed public aggregate Zcash data with explicit live/stale/unavailable states
 - [ ] Security review before handling real funds
 
 ## Read-only Zcash network status adapter
