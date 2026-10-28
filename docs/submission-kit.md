@@ -4,11 +4,11 @@
 
 ## One-line pitch
 
-ZECGUARD is a privacy-operations workspace for Zcash builders that combines attributed network privacy metrics, tamper-evident local fundraising rules, treasury reconciliation, and a browser-local privacy-pattern scanner.
+ZECGUARD is a privacy-review tool for Zcash builders. PrivacyGuard scans pasted source snippets locally for risky patterns such as sensitive logs, unsafe key storage, telemetry, and overconfident privacy claims, then provides rule-level findings and remediation guidance.
 
 ## Short description (about 75 words)
 
-Zcash privacy is more than hiding transaction details. Teams also need to understand network-level shielded-pool trends, avoid leaking sensitive metadata in application code, keep fundraising rules from silently changing, and reconcile operational records without confusing them with on-chain proof. ZECGUARD brings those workflows into one privacy-aware workspace. It reads public aggregate Zcash metrics with source freshness checks, fingerprints normalized campaign rules locally, validates treasury calculations, and scans pasted snippets in the browser. It does not request wallet secrets or claim unimplemented verification.
+Zcash privacy can be undermined by application code that logs financial metadata, stores secrets unsafely, sends transaction details to analytics, or promises more privacy than it can prove. ZECGUARD addresses this developer-facing risk with PrivacyGuard, a browser-local snippet scanner that flags common patterns, explains the evidence, and suggests mitigations. The supporting workspace keeps public network context separate from local campaign drafts and bookkeeping. It never requests wallet secrets and does not claim that heuristic checks are a formal audit.
 
 ## Problem
 
@@ -16,12 +16,12 @@ Teams building around privacy-preserving money can accidentally undermine privac
 
 ## Solution
 
-ZECGUARD is a mobile-friendly operational workspace with four connected capabilities:
+ZECGUARD is a mobile-friendly privacy-review tool with one primary workflow and supporting prototypes:
 
-1. **Network & shielded-pool intelligence.** Reads public aggregate Zcash metrics from the ZecStats API, validates the response schema, checks snapshot age and source-level freshness, and labels stale or unavailable data rather than inventing values. Source attribution is displayed in the interface.
-2. **PrivateRaise rule integrity.** Normalizes a campaign draft and creates a SHA-256 fingerprint so a changed rule set produces a different local fingerprint. This is a tamper-evidence primitive for local drafts, not an on-chain commitment or proof of received funds.
-3. **Treasury reconciliation.** Sums user-entered inflows and outflows with eight-decimal precision and flags invalid records. The ledger is operational bookkeeping, not verified wallet accounting.
-4. **PrivacyGuard.** Runs heuristic checks on source snippets directly in the browser, looking for patterns such as sensitive logging, risky key storage, transparent-address assumptions, telemetry, and absolute privacy claims. Snippets are not uploaded by this scanner.
+1. **PrivacyGuard (core).** Runs heuristic checks on pasted source snippets in the browser, identifying patterns such as sensitive logging, risky key storage, transparent-address assumptions, telemetry, and absolute privacy claims. Each finding includes a rule ID and remediation guidance. The scanner does not upload the snippet.
+2. **Network intelligence (supporting).** Reads public aggregate Zcash metrics from ZecStats with source freshness checks and clear stale/unavailable states.
+3. **PrivateRaise (supporting prototype).** Fingerprints local campaign rules with SHA-256. This is not an on-chain commitment or proof of funds.
+4. **Treasury (supporting prototype).** Reconciles user-entered inflows and outflows. It is not verified wallet accounting.
 
 ## What is genuinely implemented
 
@@ -47,19 +47,18 @@ ZECGUARD is a mobile-friendly operational workspace with four connected capabili
 - Browser local storage is not encrypted cloud storage.
 - Third-party aggregate metrics can be stale or wrong; provenance and limitations are shown.
 
-## Demo flow (90 seconds)
+## Demo flow (60 seconds, PrivacyGuard-first)
 
-1. Open Overview and point out the network metrics, data freshness status, and visible ZecStats attribution.
-2. Explain that the shielded-pool figure is aggregate network context, not an individual wallet balance.
-3. Open PrivateRaise, create a draft with a purpose, target, and deadline, then show its local fingerprint. Explain that changing draft rules changes the fingerprint but does not publish it to the blockchain.
-4. Open Treasury and explain how inflows/outflows are reconciled and why user-entered entries are not represented as verified chain transactions.
-5. Open PrivacyGuard, scan the prefilled snippet, inspect a finding and its suggested mitigation, and state that processing is local and heuristic.
-6. Use Backup to download the local workspace JSON.
-7. End with the explicit roadmap: wallet SDK/testnet transactions and independently verifiable on-chain commitments are future work, not claims made by this build.
+1. Open the default PrivacyGuard screen and show the prefilled sample snippet.
+2. Click **Run sample scan** and point out the rule IDs, severity, evidence summary, and suggested mitigation.
+3. Explain that scanning runs in the browser and the snippet is not uploaded by this scanner.
+4. Replace the sample with a harmless example that stores a viewing-key-named value in browser storage, run the scan, and show the high-severity warning.
+5. State the boundary clearly: this is a heuristic snippet scanner, not a full repository scanner or formal security audit.
+6. If time remains, briefly show the Overview network metrics and explain that campaign and treasury values are local demo data, not chain-verified.
 
 ## Suggested spoken pitch (about 45 seconds)
 
-“Zcash protects transaction details, but privacy can still fail in the applications and workflows built around it. ZECGUARD helps teams see those risks earlier. It brings together public shielded-pool context with source freshness, a local scanner for risky code patterns, deterministic fingerprints for fundraising rules, and treasury reconciliation that never pretends a spreadsheet is blockchain proof. The important design choice is honesty: stale data is marked stale, local commitments are labelled local, and the app never asks for wallet secrets. This is an early-stage privacy-operations tool, and the next milestone is supported wallet and testnet integration.”
+“Zcash privacy can be undermined by the application code around it. A log line can expose an amount, unsafe storage can put key material at risk, and absolute privacy claims can mislead users. ZECGUARD’s core feature, PrivacyGuard, checks a pasted snippet locally, shows the rule that matched, and suggests a safer next step. It does not upload the snippet, scan a whole repository, or replace a security audit. The goal is to help builders catch common privacy footguns before shipping, while being clear about what the tool can and cannot prove.”
 
 ## Known gaps judges should hear honestly
 
