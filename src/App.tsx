@@ -221,7 +221,7 @@ export default function App() {
           {active === "Treasury" && <Treasury entries={entries} balance={balance} onCreate={() => setEntryModal(true)} />}
           {active === "PrivacyGuard" && <Privacy findings={findings} setFindings={setFindings} scanDone={scanDone} setScanDone={setScanDone} checkedFindings={checkedFindings} notify={notify} />}
 
-          <footer className="global-footer"><span>◈ ZECGUARD</span><span>Privacy is a property to verify, not a promise to assume.</span><a href="https://z.cash/" target="_blank" rel="noreferrer">Built around Zcash principles <Icon name="arrow" /></a></footer>
+          <footer className="global-footer"><span>◈ ZECGUARD</span><span>Privacy engineering for Zcash builders.</span><a href="https://z.cash/" target="_blank" rel="noreferrer">Zcash <Icon name="arrow" /></a></footer>
         </section>
       </main>
 
@@ -286,22 +286,22 @@ function Overview({ campaigns, entries, findings, balance, totalRaised, openFind
   return <>
     <div className="welcome-banner"><div className="banner-grid" /><div className="banner-content"><div className="banner-chip"><span /> YOUR PRIVACY WORKSPACE</div><h2>Privacy-aware by design.<br /><em>Evidence over assumptions.</em></h2><p>Tools for fundraising, team finances, and safer Zcash applications, without pretending privacy is a checkbox.</p><button className="button banner-button" onClick={() => setActive("PrivacyGuard")}>Review privacy checks <Icon name="arrow" /></button></div><div className="banner-art" aria-hidden="true"><div className="orbit orbit-one" /><div className="orbit orbit-two" /><div className="core-shield"><Icon name="shield" /></div><div className="art-tag tag-a"><span className="mini-dot green" /> SHIELDED</div><div className="art-tag tag-b"><span className="mini-dot amber" /> VERIFY</div></div></div>
     <NetworkStatusPanel />
-    <div className="section-row"><div><div className="section-kicker">WORKSPACE HEALTH</div><h2 className="section-title">Your overview</h2></div><span className="muted-inline">Illustrative local data <span className="status-dot amber" /></span></div>
+    <div className="section-row"><div><div className="section-kicker">WORKSPACE HEALTH</div><h2 className="section-title">Your overview</h2></div><span className="muted-inline">SAMPLE DATA <span className="status-dot amber" /></span></div>
     <div className="stats-grid">
       <Stat label="Campaigns tracked" value={String(campaigns.length).padStart(2, "0")} delta="Local campaign registry" icon="raise" accent="violet" />
-      <Stat label="Total raised" value={`${money(totalRaised)} ZEC`} delta="Demo figures, not chain-verified" icon="activity" accent="green" />
-      <Stat label="Treasury balance" value={`${money(balance)} ZEC`} delta="Calculated from demo ledger" icon="treasury" accent="blue" />
-      <Stat label="Open privacy findings" value={String(openFindings).padStart(2, "0")} delta={openFindings ? "Review recommended" : "No open demo findings"} icon="shield" accent="amber" />
+      <Stat label="Total raised" value={`${money(totalRaised)} ZEC`} delta="Sample dataset" icon="activity" accent="green" />
+      <Stat label="Treasury balance" value={`${money(balance)} ZEC`} delta="Local ledger" icon="treasury" accent="blue" />
+      <Stat label="Open privacy findings" value={String(openFindings).padStart(2, "0")} delta={openFindings ? "Review recommended" : "No open findings"} icon="shield" accent="amber" />
     </div>
     <div className="content-grid overview-grid">
       <section className="panel">
         <div className="panel-header"><div><div className="section-kicker">FUNDRAISING</div><h3>Campaign activity</h3></div><button className="text-link" onClick={() => setActive("PrivateRaise")}>View all <Icon name="arrow" /></button></div>
         <div className="campaign-list compact">{campaigns.slice(0, 3).map((campaign, i) => <div className="campaign-row" key={campaign.name}><div className={`campaign-icon icon-${i % 3}`}>{i === 0 ? "◈" : i === 1 ? "↗" : "✳"}</div><div className="campaign-info"><strong>{campaign.name}</strong><span>{campaign.category} <i>·</i> {campaign.days ? `${campaign.days} days left` : "Target reached"}</span><div className="progress-track"><div style={{ width: `${Math.min(campaign.raised / campaign.target * 100, 100)}%` }} /></div></div><div className="campaign-amount"><strong>{money(campaign.raised)} <small>ZEC</small></strong><span>{Math.round(campaign.raised / campaign.target * 100)}% of target</span></div></div>)}</div>
-        <div className="panel-bottom-note"><span className="status-dot amber" /> Progress is illustrative and not backed by live chain data.</div>
+        <div className="panel-bottom-note"><span className="status-dot amber" /> SAMPLE CAMPAIGNS</div>
       </section>
       <section className="panel">
         <div className="panel-header"><div><div className="section-kicker">PRIVACYGUARD</div><h3>Findings to review</h3></div><button className="text-link" onClick={() => setActive("PrivacyGuard")}>Open scanner <Icon name="arrow" /></button></div>
-        <div className="finding-summary"><div className="finding-ring"><span>{openFindings}</span><small>OPEN</small></div><div className="finding-copy"><strong>Potential privacy risks</strong><p>Review the sample findings and their suggested mitigations.</p><div className="severity-legend"><span><i className="sev-dot high" /> High</span><span><i className="sev-dot medium" /> Medium</span><span><i className="sev-dot low" /> Low</span></div></div></div>
+        <div className="finding-summary"><div className="finding-ring"><span>{openFindings}</span><small>OPEN</small></div><div className="finding-copy"><strong>Potential privacy risks</strong><p>Your latest scan results and suggested fixes appear here.</p><div className="severity-legend"><span><i className="sev-dot high" /> High</span><span><i className="sev-dot medium" /> Medium</span><span><i className="sev-dot low" /> Low</span></div></div></div>
         <div className="mini-findings">{findings.slice(0, 2).map((finding) => <div key={finding.id} className="mini-finding"><i className={`sev-dot ${severityClass(finding.severity)}`} /><span>{finding.title}</span><b className={`severity-text ${severityClass(finding.severity)}`}>{finding.severity}</b></div>)}</div>
       </section>
     </div>
@@ -334,7 +334,7 @@ function Treasury({ entries, balance, onCreate }: { entries: Entry[]; balance: n
 
 function LedgerTable({ entries }: { entries: Entry[] }) {
   if (!entries.length) return <div className="empty-state"><span>◈</span><strong>No records yet</strong><p>Add an inflow or outflow to begin your local ledger.</p></div>;
-  return <div className="table-wrap"><table><thead><tr><th>DESCRIPTION</th><th>DATE</th><th>RECORD TYPE</th><th>AMOUNT</th><th>STATUS</th></tr></thead><tbody>{entries.map((e) => <tr key={e.id}><td><div className="table-title">{e.label}</div><div className="table-subtitle">{e.note}</div></td><td className="date-cell">{e.date}</td><td><span className={e.type === "Inflow" ? "type-pill inflow" : "type-pill outflow"}><i />{e.type}</span></td><td className={e.type === "Inflow" ? "amount-positive" : "amount-negative"}>{e.type === "Inflow" ? "+" : "−"}{money(e.amount)} ZEC</td><td><span className="status-unverified"><span /> Not verified</span></td></tr>)}</tbody></table></div>;
+  return <div className="table-wrap"><table><thead><tr><th>DESCRIPTION</th><th>DATE</th><th>RECORD TYPE</th><th>AMOUNT</th><th>STATUS</th></tr></thead><tbody>{entries.map((e) => <tr key={e.id}><td><div className="table-title">{e.label}</div><div className="table-subtitle">{e.note}</div></td><td className="date-cell">{e.date}</td><td><span className={e.type === "Inflow" ? "type-pill inflow" : "type-pill outflow"}><i />{e.type}</span></td><td className={e.type === "Inflow" ? "amount-positive" : "amount-negative"}>{e.type === "Inflow" ? "+" : "−"}{money(e.amount)} ZEC</td><td><span className="status-unverified"><span /> Local</span></td></tr>)}</tbody></table></div>;
 }
 
 function Privacy({ findings, setFindings, scanDone, setScanDone, checkedFindings, notify }: { findings: Finding[]; setFindings: React.Dispatch<React.SetStateAction<Finding[]>>; scanDone: boolean; setScanDone: (value: boolean) => void; checkedFindings: Finding[]; notify: (message: string) => void }) {
@@ -356,7 +356,7 @@ function Privacy({ findings, setFindings, scanDone, setScanDone, checkedFindings
     }));
     setFindings(next);
     setScanDone(true);
-    setScanMessage(results.length ? `Found ${results.length} potential issue(s). Review each result; heuristic matches can be false positives.` : "No configured patterns matched. This does not prove the snippet is safe.");
+    setScanMessage(results.length ? `Found ${results.length} potential issue(s). Review the matched rules below.` : "No matching rules. Review manually.");
     notify(results.length ? `Snippet scan found ${results.length} potential issue(s).` : "No configured patterns matched.");
   };
   return <><div className="module-toolbar"><div className="toolbar-copy"><span className="status-dot amber" /> {scanDone ? "Review run complete" : "Ready for review"} <span className="divider">/</span> {checkedFindings.length} open findings</div><button className="button secondary" onClick={runSnippetScan}><Icon name="activity" /> Run sample scan</button></div>
