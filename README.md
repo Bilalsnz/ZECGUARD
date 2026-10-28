@@ -1,17 +1,19 @@
 # ZECGUARD
 
-**Privacy operations for Zcash.**
+**Find privacy leaks before they ship.**
+
+ZECGUARD is a privacy-review tool for Zcash builders. Its primary workflow scans pasted source snippets locally for risky patterns and explains what to review next. Public network context, campaign-rule fingerprints, and a local treasury ledger are supporting tools, clearly separated from verified chain data.
 
 **Live demo:** https://zecguard.vercel.app
 
-ZECGUARD is an early-stage, open-source workspace for people building financial applications around Zcash. It puts public network context, application privacy checks, campaign-rule integrity, and treasury reconciliation in one place.
+ZECGUARD is an early-stage, open-source privacy-review workspace for people building applications around Zcash. The core workflow is PrivacyGuard: paste a small source snippet, run local heuristic rules, inspect findings, and review suggested mitigations. Supporting modules provide public network context and local operational prototypes.
 
 ## What it does
 
-- **Network Intelligence** — reads public aggregate Zcash metrics from the ZecStats API, validates response fields and source freshness, and labels data as LIVE, STALE, or UNAVAILABLE.
-- **PrivateRaise** — creates local campaign drafts and deterministic SHA-256 fingerprints of normalized rules so edits are detectable.
-- **Private Treasury** — reconciles user-entered inflows and outflows, rounds calculations to eight decimal places, and flags invalid amounts.
-- **PrivacyGuard** — runs heuristic checks on source snippets inside the browser for risky patterns such as sensitive logging, unsafe browser key storage, transparent-address assumptions, telemetry, and absolute privacy claims.
+- **PrivacyGuard (core workflow)** — runs heuristic checks on pasted source snippets inside the browser for sensitive logging, risky browser key storage, transparent-address assumptions, telemetry, and absolute privacy claims. It displays rule IDs, evidence summaries, and remediation suggestions.
+- **Network Intelligence (supporting)** — reads public aggregate Zcash metrics from the ZecStats API, validates response fields and source freshness, and labels data as LIVE, STALE, or UNAVAILABLE.
+- **PrivateRaise (prototype)** — creates local campaign drafts and deterministic SHA-256 fingerprints of normalized rules so edits are detectable.
+- **Treasury (prototype)** — reconciles user-entered inflows and outflows, rounds calculations to eight decimal places, and flags invalid amounts.
 - **Local workspace** — persists campaign drafts, ledger entries, and review status in browser storage and exports a JSON backup.
 
 ## Current status and boundaries
@@ -57,6 +59,7 @@ npm run build
 
 ## Roadmap
 
+- [x] PrivacyGuard-first responsive workflow with local snippet scanning and remediation guidance
 - [x] Responsive privacy-operations dashboard
 - [x] Local heuristic snippet scanner and tests
 - [x] Canonical local campaign-rule fingerprints and tests
