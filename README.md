@@ -2,6 +2,8 @@
 
 **Privacy operations for Zcash.**
 
+**Live demo:** https://zecguard.vercel.app
+
 ZECGUARD is an early-stage, open-source workspace for people building financial applications around Zcash. It puts public network context, application privacy checks, campaign-rule integrity, and treasury reconciliation in one place.
 
 ## What it does
