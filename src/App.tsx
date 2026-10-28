@@ -45,11 +45,7 @@ const initialEntries: Entry[] = [
   { id: 2, label: "Contributor payment", type: "Outflow", amount: 1.2, date: "Oct 25, 2026", note: "Demo record, not chain-verified" },
   { id: 3, label: "Infrastructure budget", type: "Outflow", amount: 0.65, date: "Oct 23, 2026", note: "Demo record, not chain-verified" },
 ];
-const initialFindings: Finding[] = [
-  { id: 1, title: "Transparent address in payment path", detail: "A sample payment flow references a transparent address. Review whether public address and amount visibility is intentional.", severity: "High", status: "Open" },
-  { id: 2, title: "Transaction identifiers in client logs", detail: "The example configuration logs transaction identifiers to the browser console. Logs can create a link between a user and their activity.", severity: "Medium", status: "Open" },
-  { id: 3, title: "Privacy claim needs evidence", detail: "The campaign copy says “fully private” without describing address, amount, wallet, and network-metadata assumptions.", severity: "Low", status: "Reviewed" },
-];
+const initialFindings: Finding[] = [];
 const money = (value: number) => value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const severityClass = (severity: string) => severity.toLowerCase();
 
@@ -73,7 +69,7 @@ export default function App() {
   const [active, setActive] = useState<Module>("PrivacyGuard");
   const [campaigns, setCampaigns] = useState<Campaign[]>(() => readLocalState("zecguard.campaigns.v1", initialCampaigns, isCampaignList));
   const [entries, setEntries] = useState<Entry[]>(() => readLocalState("zecguard.ledger.v1", initialEntries, isEntryList));
-  const [findings, setFindings] = useState<Finding[]>(() => readLocalState("zecguard.findings.v1", initialFindings, isFindingList));
+  const [findings, setFindings] = useState<Finding[]>(() => readLocalState("zecguard.findings.v2", initialFindings, isFindingList));
   const [campaignModal, setCampaignModal] = useState(false);
   const [entryModal, setEntryModal] = useState(false);
   const [campaignName, setCampaignName] = useState("");
@@ -88,7 +84,7 @@ export default function App() {
 
   useEffect(() => { writeLocalState("zecguard.campaigns.v1", campaigns); }, [campaigns]);
   useEffect(() => { writeLocalState("zecguard.ledger.v1", entries); }, [entries]);
-  useEffect(() => { writeLocalState("zecguard.findings.v1", findings); }, [findings]);
+  useEffect(() => { writeLocalState("zecguard.findings.v2", findings); }, [findings]);
 
 
   const totalRaised = campaigns.reduce((sum, item) => sum + item.raised, 0);
@@ -109,9 +105,9 @@ export default function App() {
   };
   const pageSubtitle: Record<Module, string> = {
     Overview: "Public network context plus clearly separated local workspace tools.",
-    PrivateRaise: "A local campaign-rule prototype. Funding progress is illustrative demo data, not live contributions.",
-    Treasury: "A local ledger for entered records, not verified wallet accounting.",
-    PrivacyGuard: "Scan a code snippet in your browser, inspect concrete findings, and review safer next steps. No repository upload or full-repo scan.",
+    PrivateRaise: "Draft campaign rules and track funding targets.",
+    Treasury: "Review inflows, outflows, and your running balance.",
+    PrivacyGuard: "Scan a snippet, inspect matched rules, and review suggested fixes.",
   };
 
   function notify(message: string) {
@@ -202,7 +198,7 @@ export default function App() {
         <div className="sidebar-bottom">
           <div className="network-card">
             <span className="network-dot" />
-            <div><strong>Prototype mode</strong><small>No live chain connection</small></div>
+            <div><strong>Privacy workspace</strong><small>Local-first tools</small></div>
           </div>
           <div className="sidebar-footer"><span className="tiny-shield">◈</span> Built for a more private internet <span className="version">v0.1</span></div>
         </div>
@@ -211,7 +207,7 @@ export default function App() {
       <main className="main-area">
         <header className="topbar">
           <div className="breadcrumbs"><span>Workspace</span><span className="crumb-slash">/</span><strong>{active}</strong></div>
-          <div className="topbar-right"><button className="button secondary export-button" onClick={exportWorkspace}>Backup</button><span className="demo-pill" title="PrivacyGuard scans pasted snippets locally. Network metrics are third-party public data; campaigns and treasury entries are local demo data."><span /> PUBLIC + LOCAL</span><button className="avatar" aria-label="Local demo profile">B</button></div>
+          <div className="topbar-right"><button className="button secondary export-button" onClick={exportWorkspace}>Backup</button><span className="demo-pill" title="Public network metrics and local workspace tools"><span /> ZCASH TOOLS</span><button className="avatar" aria-label="Local demo profile">B</button></div>
         </header>
 
         <section className="page-content">
@@ -229,8 +225,8 @@ export default function App() {
         </section>
       </main>
 
-      {campaignModal && <Modal title="Create a campaign draft" onClose={() => setCampaignModal(false)}><form onSubmit={createCampaign} className="modal-form"><label>Campaign name<input autoFocus value={campaignName} onChange={(e) => setCampaignName(e.target.value)} placeholder="e.g. Open-source wallet UX" required maxLength={80} /></label><label>Campaign purpose<textarea value={campaignDescription} onChange={(e) => setCampaignDescription(e.target.value)} placeholder="What will the funds support?" required maxLength={500} rows={3} /></label><label>Funding target (ZEC)<input type="number" min="0.01" step="0.01" value={campaignTarget} onChange={(e) => setCampaignTarget(e.target.value)} required /></label><label>Campaign deadline<input type="date" min={new Date().toISOString().slice(0, 10)} value={campaignDeadline} onChange={(e) => setCampaignDeadline(e.target.value)} required /></label><div className="notice small-notice"><Icon name="activity" /> A SHA-256 fingerprint commits to these rules in this browser. It is not on-chain, signed, timestamped, or proof of payment.</div><button className="button primary full" type="submit">Create draft + fingerprint <Icon name="arrow" /></button></form></Modal>}
-      {entryModal && <Modal title="Add a ledger record" onClose={() => setEntryModal(false)}><form onSubmit={createEntry} className="modal-form"><label>Record description<input autoFocus value={entryLabel} onChange={(e) => setEntryLabel(e.target.value)} placeholder="e.g. Contributor payment" required maxLength={100} /></label><label>Record type<select value={entryType} onChange={(e) => setEntryType(e.target.value as "Inflow" | "Outflow")}><option>Inflow</option><option>Outflow</option></select></label><label>Amount (ZEC)<input type="number" min="0.01" step="0.01" value={entryAmount} onChange={(e) => setEntryAmount(e.target.value)} required /></label><div className="notice small-notice">This is a user-entered record, not a verified blockchain transaction.</div><button className="button primary full" type="submit">Add record <Icon name="arrow" /></button></form></Modal>}
+      {campaignModal && <Modal title="Create a campaign draft" onClose={() => setCampaignModal(false)}><form onSubmit={createCampaign} className="modal-form"><label>Campaign name<input autoFocus value={campaignName} onChange={(e) => setCampaignName(e.target.value)} placeholder="e.g. Open-source wallet UX" required maxLength={80} /></label><label>Campaign purpose<textarea value={campaignDescription} onChange={(e) => setCampaignDescription(e.target.value)} placeholder="What will the funds support?" required maxLength={500} rows={3} /></label><label>Funding target (ZEC)<input type="number" min="0.01" step="0.01" value={campaignTarget} onChange={(e) => setCampaignTarget(e.target.value)} required /></label><label>Campaign deadline<input type="date" min={new Date().toISOString().slice(0, 10)} value={campaignDeadline} onChange={(e) => setCampaignDeadline(e.target.value)} required /></label><div className="field-hint">SHA-256 rules fingerprint generated locally.</div><button className="button primary full" type="submit">Create draft + fingerprint <Icon name="arrow" /></button></form></Modal>}
+      {entryModal && <Modal title="Add a ledger record" onClose={() => setEntryModal(false)}><form onSubmit={createEntry} className="modal-form"><label>Record description<input autoFocus value={entryLabel} onChange={(e) => setEntryLabel(e.target.value)} placeholder="e.g. Contributor payment" required maxLength={100} /></label><label>Record type<select value={entryType} onChange={(e) => setEntryType(e.target.value as "Inflow" | "Outflow")}><option>Inflow</option><option>Outflow</option></select></label><label>Amount (ZEC)<input type="number" min="0.01" step="0.01" value={entryAmount} onChange={(e) => setEntryAmount(e.target.value)} required /></label><div className="field-hint">Local ledger entry</div><button className="button primary full" type="submit">Add record <Icon name="arrow" /></button></form></Modal>}
       {toast && <div className="toast"><Icon name="check" />{toast}</div>}
     </div>
   );
@@ -281,7 +277,7 @@ function NetworkStatusPanel() {
         <button className="button secondary" onClick={() => void refresh()} disabled={checking}>{checking ? "Refreshing…" : "Refresh metrics"} <Icon name="activity" /></button>
         <a className="network-source-link" href="https://zecstats.org/api" target="_blank" rel="noreferrer">Source & methodology ↗</a>
       </div>
-      <p className="network-config-note">Source: ZecStats public API, CC BY 4.0. Your browser contacts this third-party service, which may observe ordinary connection metadata such as your IP address. The request sends no wallet address or keys. Metrics may be stale and do not prove wallet ownership, shielded balances, or campaign payments.</p>
+      <p className="network-config-note">Source: ZecStats public API · CC BY 4.0 · Aggregate network metrics.</p>
     </div>
   </section>;
 }
@@ -364,13 +360,13 @@ function Privacy({ findings, setFindings, scanDone, setScanDone, checkedFindings
     notify(results.length ? `Snippet scan found ${results.length} potential issue(s).` : "No configured patterns matched.");
   };
   return <><div className="module-toolbar"><div className="toolbar-copy"><span className="status-dot amber" /> {scanDone ? "Review run complete" : "Ready for review"} <span className="divider">/</span> {checkedFindings.length} open findings</div><button className="button secondary" onClick={runSnippetScan}><Icon name="activity" /> Run sample scan</button></div>
-    <div className="scan-banner"><div className="scan-icon"><Icon name="shield" /></div><div><span className="section-kicker">PRIVACYGUARD · CORE WORKFLOW</span><h2>{scanDone ? "Review the issues you found." : "Find the leaks before they ship."}</h2><p>Start with the sample, run a local scan, then inspect each rule ID, evidence summary, and mitigation. Your pasted snippet stays in this browser during scanning.</p></div><div className="scan-status"><span className="status-dot amber" /> HEURISTIC SCAN</div></div>
-    <section className="panel snippet-panel"><div className="panel-header"><div><div className="section-kicker">LOCAL SNIPPET ANALYSIS</div><h3>Scan source text</h3></div><span className="badge badge-violet">NO UPLOAD</span></div><div className="snippet-content"><label className="snippet-label" htmlFor="privacy-snippet">Paste code or configuration (processed in this browser)</label><textarea id="privacy-snippet" className="snippet-input" value={snippet} onChange={(e) => setSnippet(e.target.value)} maxLength={50000} spellCheck={false} placeholder="Paste a small source snippet here..." /><div className="snippet-actions"><span>{snippet.length.toLocaleString()} / 50,000 characters · heuristic checks only</span><button className="button primary" onClick={runSnippetScan}><Icon name="activity" /> Scan snippet</button></div>{scanMessage && <p className="scan-message" role="status">{scanMessage}</p>}</div></section>
+    <div className="scan-banner"><div className="scan-icon"><Icon name="shield" /></div><div><span className="section-kicker">PRIVACYGUARD · CORE WORKFLOW</span><h2>{scanDone ? "Review the issues you found." : "Find the leaks before they ship."}</h2><p>Run the sample or paste code to inspect matched rules, evidence, and suggested fixes.</p></div><div className="scan-status"><span className="status-dot amber" /> HEURISTIC SCAN</div></div>
+    <section className="panel snippet-panel"><div className="panel-header"><div><div className="section-kicker">LOCAL SNIPPET ANALYSIS</div><h3>Scan source text</h3></div><span className="badge badge-violet">LOCAL SCAN</span></div><div className="snippet-content"><label className="snippet-label" htmlFor="privacy-snippet">Paste code or configuration</label><textarea id="privacy-snippet" className="snippet-input" value={snippet} onChange={(e) => setSnippet(e.target.value)} maxLength={50000} spellCheck={false} placeholder="Paste a small source snippet here..." /><div className="snippet-actions"><span>{snippet.length.toLocaleString()} / 50,000 characters</span><button className="button primary" onClick={runSnippetScan}><Icon name="activity" /> Scan snippet</button></div>{scanMessage && <p className="scan-message" role="status">{scanMessage}</p>}</div></section>
     <div className="scan-metrics"><div><span>Open findings</span><strong>{checkedFindings.length.toString().padStart(2, "0")}</strong></div><div><span>High severity</span><strong>{findings.filter((f) => f.severity === "High" && f.status === "Open").length.toString().padStart(2, "0")}</strong></div><div><span>Reviewed</span><strong>{findings.filter((f) => f.status === "Reviewed").length.toString().padStart(2, "0")}</strong></div><div><span>Repository scans</span><strong>00</strong></div></div>
     <section className="panel findings-panel"><div className="panel-header"><div><div className="section-kicker">FINDINGS REGISTER</div><h3>Potential privacy issues</h3></div><select className="filter-select" value={filter} onChange={(e) => setFilter(e.target.value)} aria-label="Filter findings"><option>All</option><option>High</option><option>Medium</option><option>Low</option><option>Open</option><option>Reviewed</option></select></div>
       {visible.length ? <div className="finding-list">{visible.map((f) => <article className="finding-card" key={f.id}><div className={`finding-severity-bar ${severityClass(f.severity)}`} /><div className="finding-body"><div className="finding-heading"><span className={`severity-badge ${severityClass(f.severity)}`}>{f.severity} severity</span>{f.ruleId && <code className="rule-id">{f.ruleId}</code>}<span className={f.status === "Open" ? "finding-status open" : "finding-status"}>{f.status}</span></div><h4>{f.title}</h4><p>{f.detail}</p><div className="remediation"><strong>Suggested next step</strong><span>{f.remediation || (f.id === 1 ? "Inspect address types and transaction construction. Document which details are publicly observable." : f.id === 2 ? "Remove sensitive console logs, review telemetry, and avoid sending transaction metadata to third-party analytics." : "Replace absolute privacy promises with a precise threat model and evidence for each claim.")}</span></div></div>{f.status === "Open" && <button className="button secondary review-button" onClick={() => markReviewed(f.id)}><Icon name="check" /> Mark reviewed</button>}</article>)}</div> : <div className="empty-state"><span>✓</span><strong>No matching findings</strong><p>Try another filter or review all findings.</p></div>}
     </section>
-    <div className="notice bottom-notice"><Icon name="lock" /><div><strong>Scope and limitations</strong><p>This is a small local pattern scanner, not a security audit. It only inspects pasted text in your browser and does not upload it. It cannot parse every language, understand full program behavior, inspect network traffic, or prove that unflagged code is safe. Findings may be false positives or miss real issues.</p></div></div>
+    <div className="privacy-meta"><span>Rule-based analysis</span><span>Snippet scope</span><span>Review findings before shipping</span></div>
   </>;
 }
 
