@@ -66,3 +66,8 @@
   font-weight: 700;
   letter-spacing: .07em;
 }
+
+
+/* Compact workspace backup action */
+.export-button{padding:7px 9px;font-size:9px;white-space:nowrap}
+@media(max-width:760px){.export-button{padding:6px 7px;font-size:8px}}
